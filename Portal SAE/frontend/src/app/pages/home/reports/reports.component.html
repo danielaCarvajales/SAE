@@ -1,0 +1,14 @@
+<div class="page-container">
+  <div class="main-container">
+    <mat-card
+      *ngFor="let card of CARD_DATA"
+      (click)="redirectToPage(card.url)"
+      matRipple
+    >
+      <mat-card-content class="card-content">
+        <p class="text">{{ card.title }}</p>
+        <mat-icon class="icon">{{ card.icon }}</mat-icon>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

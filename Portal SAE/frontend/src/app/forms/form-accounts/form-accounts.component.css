@@ -1,0 +1,26 @@
+form {
+  gap: 5px;
+  margin: 15px;
+  padding: 15px;
+  height: 100vh;
+  display: flex;
+  border-radius: 5px;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #e2eef7;
+}
+
+.form-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+  margin: 10px;
+}
+
+.btn-row-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}

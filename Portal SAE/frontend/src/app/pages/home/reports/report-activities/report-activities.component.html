@@ -1,0 +1,105 @@
+<mat-form-field>
+  <mat-label>Filtro</mat-label>
+  <input
+    matInput
+    color="primary"
+    (keyup)="applyFilter($event)"
+    placeholder="Ingrese el filtro"
+  />
+</mat-form-field>
+<div class="table-container">
+  <table mat-table [dataSource]="tableDataSource" matSort #sort="matSort">
+    <ng-container matColumnDef="codigo">
+      <th mat-sort-header mat-header-cell *matHeaderCellDef>#</th>
+      <td mat-cell *matCellDef="let element">
+        {{ tableDataSource.data.indexOf(element) + 1 }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="porcentajeProgreso">
+      <th mat-sort-header mat-header-cell *matHeaderCellDef>
+        Porcentaje Progreso
+      </th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.porcentajeProgreso }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="fechaHoraInicio">
+      <th mat-sort-header mat-header-cell *matHeaderCellDef>
+        Fecha Hora Inicio
+      </th>
+      <td mat-cell *matCellDef="let element">
+        {{ parseDate(element.fechaHoraInicio) | date: 'yyyy-MM-dd HH:mm:ss' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="fechaHoraFin">
+      <th mat-sort-header mat-header-cell *matHeaderCellDef>Fecha Hora Fin</th>
+      <td mat-cell *matCellDef="let element">
+        {{ parseDate(element.fechaHoraFin) | date: 'yyyy-MM-dd HH:mm:ss' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="descripcion">
+      <th mat-sort-header mat-header-cell *matHeaderCellDef>Descripción</th>
+      <td mat-cell *matCellDef="let element">
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            {{
+              element.descripcion?.length > 15
+                ? element.descripcion.slice(0, 15) + '...'
+                : element.descripcion
+            }}
+          </mat-expansion-panel-header>
+          <p>{{ element.descripcion }}</p>
+        </mat-expansion-panel>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="horasTrabajo">
+      <th mat-sort-header mat-header-cell *matHeaderCellDef>Horas Trabajo</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.horasTrabajo }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="codigoTarea">
+      <th mat-sort-header mat-header-cell *matHeaderCellDef>Tarea</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.codigoTarea }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="contactoAsignado">
+      <th mat-sort-header mat-header-cell *matHeaderCellDef>
+        Contacto Asignado
+      </th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.contactoAsignado }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="estado">
+      <th mat-sort-header mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.estado }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="unidadTrabajo">
+      <th mat-sort-header mat-header-cell *matHeaderCellDef>Unidad Trabajo</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.unidadTrabajo }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns"></tr>
+  </table>
+</div>
+<mat-paginator
+  [pageSize]="30"
+  [pageSizeOptions]="[5, 10, 25, 50]"
+  showFirstLastButtons
+></mat-paginator>

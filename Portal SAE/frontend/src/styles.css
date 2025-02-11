@@ -1,0 +1,26 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import 'material-icons/iconfont/material-icons.css';
+
+* {
+  font-family: 'Genos';
+  font-weight: 500;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+}
+
+.mat-mdc-snack-bar-container.success .mdc-snackbar__surface {
+  background-color: #5cb85c;
+  color: #fff;
+  text-align: center;
+}
+
+.mat-mdc-snack-bar-container.warn .mdc-snackbar__surface {
+  background-color: #e6563d;
+  color: #fff;
+  text-align: center;
+}

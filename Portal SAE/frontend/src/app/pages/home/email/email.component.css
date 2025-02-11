@@ -1,0 +1,98 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: center;
+  align-items: stretch;
+  gap: 0;
+  margin: 10px;
+  padding: 5px;
+  width: 100%;
+}
+
+
+.action-container {
+  display: flex;
+  margin: 10px;
+  padding: 5px;
+  height: 49px;
+  border-radius: 5px;
+  background-color: #bcdcf1;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.action-button-container {
+  display: flex;
+  gap: 15px;
+  width: fit-content;
+}
+
+.mat-mdc-extended-fab {
+  border-radius: 5px;
+}
+
+.mat-mdc-form-field {
+  display: flex;
+}
+
+.filter-input {
+  display: flex;
+  width: 100%;
+}
+
+::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  margin-bottom: -1.25em;
+}
+
+.mat-mdc-paginator {
+  width: 100%;
+  font-weight: bold;
+  background-color: #cfd6db;
+}
+
+/* Table Styling */
+
+.mat-mdc-cell {
+  text-align: center;
+}
+
+::ng-deep .mat-sort-header-container {
+  justify-content: center;
+}
+
+.mat-mdc-table {
+  width: 100% !important;
+}
+
+.table-container {
+  flex-grow: 1;
+  overflow: auto;
+  width: 100%;
+  height: 70vh;
+  display: flex;
+  justify-content: center;
+}
+
+
+.mat-mdc-table {
+  width: 100%;
+}
+
+
+.mdc-data-table__header-cell {
+  color: white;
+  font-size: 16px;
+  font-weight: bold !important;
+  background-color: #46aaea !important;
+}
+
+.mat-mdc-row:nth-child(odd) {
+  background-color: #bfe0f8;
+}
+
+.mat-mdc-row.selected-row {
+  background-color: #eac813;
+}

@@ -1,0 +1,15 @@
+<mat-tab-group>
+  <mat-tab label="Manual del Usuario">
+    <pdf-viewer
+      [src]="pdfSrc"
+      [render-text]="true"
+      [original-size]="true"
+      [show-borders]="true"
+      [zoom-scale]="'page-fit'"
+      style="width: 100%; height: calc(100vh - 93px)"
+    ></pdf-viewer>
+    <button mat-raised-button color="primary" (click)="downloadPDF()">
+      Descargar PDF
+    </button>
+  </mat-tab>
+</mat-tab-group>

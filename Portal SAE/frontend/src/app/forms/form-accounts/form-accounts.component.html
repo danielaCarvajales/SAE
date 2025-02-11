@@ -1,0 +1,137 @@
+<form [formGroup]="accountsService.form">
+  <input type="hidden" formControlName="codigo" />
+  <input type="hidden" formControlName="codigoUsuario" />
+
+  <div class="form-inputs">
+    <mat-form-field>
+      <mat-label> Número de Identificación </mat-label>
+      <input
+        matInput
+        placeholder="Número de Identificación"
+        formControlName="numeroIdentificacion"
+      />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label> Email </mat-label>
+      <input
+        matInput
+        placeholder="Email"
+        type="email"
+        formControlName="email"
+      />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label> Página Web </mat-label>
+      <input matInput placeholder="Página Web" formControlName="paginaWeb" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label> Código de País </mat-label>
+      <input matInput placeholder="Ej. +57" formControlName="codigoPais" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label> Telefono Fijo </mat-label>
+      <input
+        matInput
+        placeholder="Telefono Fijo"
+        formControlName="telefonoFijo"
+      />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label> Telefono Secundario </mat-label>
+      <input
+        matInput
+        placeholder="Telefono Secundario"
+        formControlName="telefonoSecundario"
+      />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label> Sector Económico </mat-label>
+      <input
+        matInput
+        placeholder="Sector Económico"
+        formControlName="sectorEconomico"
+      />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label> País </mat-label>
+      <input matInput placeholder="País" formControlName="pais" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label> Departamento </mat-label>
+      <input
+        matInput
+        placeholder="Departamento"
+        formControlName="departamento"
+      />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label> Ciudad </mat-label>
+      <input matInput placeholder="Ciudad" formControlName="ciudad" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label> Número de Empleados </mat-label>
+      <input
+        matInput
+        placeholder="Número de Empleados"
+        formControlName="numeroEmpleados"
+      />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label> Tipo de Identificación </mat-label>
+      <mat-select
+        formControlName="tipoIdentificacion"
+        placeholder="Tipo de Identificación*"
+      >
+        <mat-option
+          *ngFor="let identityType of accountsIdentityTypesList"
+          [value]="identityType.codigo"
+        >
+          {{ identityType.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label> Consultor Asignado </mat-label>
+      <mat-select
+        formControlName="codigoConsultorAsignado"
+        placeholder="Consultor Asignado*"
+      >
+        <mat-option
+          *ngFor="let consultant of consultantsList"
+          [value]="consultant.codigo"
+        >
+          {{ consultant.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label> Tipo de Servicio </mat-label>
+      <mat-select
+        formControlName="tipoServicio"
+        placeholder="Tipo de Servicio*"
+      >
+        <mat-option
+          *ngFor="let typeService of servicesTypesList"
+          [value]="typeService.codigo"
+        >
+          {{ typeService.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="btn-row-container">
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="accountsService.form.invalid"
+      (click)="onSubmit()"
+    >
+      Guardar
+    </button>
+    <button mat-raised-button color="warn" (click)="onCancel()">
+      Cancelar
+    </button>
+  </div>
+</form>

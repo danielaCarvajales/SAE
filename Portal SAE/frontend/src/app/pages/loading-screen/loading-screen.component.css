@@ -1,0 +1,21 @@
+.container {
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.media-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.media-container .logo {
+  width: 100%;
+}
+
+.media-container .gif {
+  width: 35%;
+}

@@ -1,0 +1,199 @@
+<form [formGroup]="eventsService.form">
+  <input type="hidden" formControlName="codigo" />
+
+  <div class="group-progress">
+    <mat-spinner
+      color="primary"
+      mode="determinate"
+      [value]="eventsService.form.get('porcentajeProgreso')?.value"
+    ></mat-spinner>
+    <mat-form-field>
+      <mat-label> Porcentaje de Progreso </mat-label>
+      <mat-select
+        placeholder="Porcentaje de Progreso"
+        formControlName="porcentajeProgreso"
+      >
+        <mat-option
+          *ngFor="let value of generateRange(0, 100, 10)"
+          [value]="value"
+        >
+          {{ value }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="form-inputs">
+    <mat-form-field>
+      <mat-label>Asunto</mat-label>
+      <input matInput placeholder="Asunto" formControlName="asunto" />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Descripción</mat-label>
+      <input matInput placeholder="Descripción" formControlName="descripcion" />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Fecha y Hora de Inicio</mat-label>
+      <input
+        matInput
+        placeholder="YYYY-MM-DD HH:MM:SS*"
+        formControlName="fechaHoraInicio"
+      />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Fecha y Hora de Fin</mat-label>
+      <input
+        matInput
+        placeholder="YYYY-MM-DD HH:MM:SS*"
+        formControlName="fechaHoraFin"
+      />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Tiempo Duración Minutos</mat-label>
+      <input
+        matInput
+        placeholder="Tiempo Duracion"
+        formControlName="tiempoDuracion"
+        readonly
+      />
+    </mat-form-field>
+
+    @if (isUserConsultant) {
+      <mat-form-field>
+        <mat-label> Empresario Asignado </mat-label>
+        <mat-select
+          placeholder="Empresario Asignado*"
+          formControlName="codigoEmpresario"
+        >
+          <mat-option
+            *ngFor="let businessman of businessmenList"
+            [value]="businessman.codigo"
+          >
+            {{ businessman.nombre }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    } @else {
+      <mat-form-field>
+        <mat-label> Consultor Asignado </mat-label>
+        <mat-select
+          placeholder="Consultor Asignado*"
+          formControlName="codigoConsultor"
+        >
+          <mat-option
+            *ngFor="let consultant of consultantsList"
+            [value]="consultant.codigo"
+          >
+            {{ consultant.nombre }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    }
+
+    <mat-form-field>
+      <mat-label> Tipo </mat-label>
+      <mat-select
+        #selectEventType
+        placeholder="Tipo*"
+        formControlName="tipo"
+        (selectionChange)="onTypeSelectionChange($event)"
+      >
+        <mat-option *ngFor="let type of eventsTypesList" [value]="type.codigo">
+          {{ type.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label> Estado </mat-label>
+      <mat-select placeholder="Estado*" formControlName="estado">
+        <mat-option
+          *ngFor="let status of eventsStatusList"
+          [value]="status.codigo"
+        >
+          {{ status.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label> Visibilidad </mat-label>
+      <mat-select placeholder="Visibilidad*" formControlName="visibilidad">
+        <mat-option
+          *ngFor="let visibility of eventsVisibilitiesList"
+          [value]="visibility.codigo"
+        >
+          {{ visibility.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label> Notificar Por </mat-label>
+      <mat-select placeholder="Notificar Por*" formControlName="notificarPor">
+        <mat-option
+          *ngFor="let notifyBy of eventsNotifyByList"
+          [value]="notifyBy.codigo"
+        >
+          {{ notifyBy.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label> Cuenta Asignada </mat-label>
+      <mat-select
+        placeholder="Cuenta Asignada*"
+        formControlName="cuentaAsignada"
+      >
+        <mat-option
+          *ngFor="let accounts of accountsList"
+          [value]="accounts.codigo"
+        >
+          {{ accounts.paginaWeb }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label> Contacto Asignado </mat-label>
+      <mat-select
+        placeholder="Contacto Asignado*"
+        formControlName="contactoAsignado"
+      >
+        <mat-option
+          *ngFor="let contacts of contactsList"
+          [value]="contacts.codigo"
+        >
+          {{ contacts.nombres }} {{ contacts.apellidos }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="table-email-container">
+    <app-event-email-table
+      *ngIf="eventTypeIsEmail"
+      [eventCode]="getEventCode()"
+    ></app-event-email-table>
+  </div>
+
+  <div class="btn-row-container">
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="eventsService.form.invalid"
+      (click)="onSubmit()"
+    >
+      Guardar
+    </button>
+    <button mat-raised-button color="warn" (click)="onCancel()">
+      Cancelar
+    </button>
+  </div>
+</form>

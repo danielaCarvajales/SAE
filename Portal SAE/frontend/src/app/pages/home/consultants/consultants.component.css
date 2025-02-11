@@ -1,0 +1,45 @@
+/* Button Styling */
+
+.action-container {
+  display: flex;
+  margin: 10px;
+  padding: 5px;
+  height: 49px;
+  border-radius: 5px;
+  background-color: #bcdcf1;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+/* Table Styling */
+
+.mat-mdc-cell,
+.mat-mdc-header-cell {
+  text-align: center;
+}
+
+.mat-mdc-table {
+  width: max-content;
+}
+
+.table-container {
+  width: 98%;
+  height: 86%;
+  margin: 10px;
+  overflow-x: scroll;
+  border-radius: 5px;
+}
+
+.mat-mdc-header-row,
+.mat-header-cell {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #46aaea;
+}
+
+.mat-mdc-row:nth-child(odd) {
+  background-color: #bfe0f8;
+}

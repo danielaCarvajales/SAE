@@ -1,0 +1,100 @@
+@if (tableDataSource.data.length > 0) {
+  <div class="container">
+    <mat-form-field>
+      <mat-label>Filtro de correos</mat-label>
+      <input
+        matInput
+        color="primary"
+        (keyup)="applyFilter($event)"
+        placeholder="Filtrar los correos por:"
+      />
+    </mat-form-field>
+
+    <div class="table-container">
+      <table mat-table [dataSource]="tableDataSource" matSort #sort="matSort">
+        <ng-container matColumnDef="codigo">
+          <th mat-sort-header mat-header-cell *matHeaderCellDef>#</th>
+          <td mat-cell *matCellDef="let element">
+            {{ tableDataSource.data.indexOf(element) + 1 }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="remitente">
+          <th mat-sort-header mat-header-cell *matHeaderCellDef>Remitente</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.remitente }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="destinatario">
+          <th mat-sort-header mat-header-cell *matHeaderCellDef>
+            Destinatario
+          </th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.destinatario }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="asunto">
+          <th mat-sort-header mat-header-cell *matHeaderCellDef>Asunto</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.asunto }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="contenido">
+          <th mat-sort-header mat-header-cell *matHeaderCellDef>Contenido</th>
+          <td
+            mat-cell
+            *matCellDef="let element"
+            (click)="
+              element.contenido ? openDialogWithData(element.contenido) : null
+            "
+          >
+            <mat-icon *ngIf="element.contenido">open_in_new</mat-icon>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fechaEnviado">
+          <th mat-sort-header mat-header-cell *matHeaderCellDef>
+            Fecha Enviado
+          </th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.fechaEnviado }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fechaRecibido">
+          <th mat-sort-header mat-header-cell *matHeaderCellDef>
+            Fecha Recibido
+          </th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.fechaRecibido }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="eventoAsignado">
+          <th mat-sort-header mat-header-cell *matHeaderCellDef>
+            Evento Asignado
+          </th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.eventoAsignado }}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    </div>
+
+    <mat-paginator
+      [pageSize]="30"
+      [pageSizeOptions]="[5, 10, 25, 50]"
+      showFirstLastButtons
+    ></mat-paginator>
+  </div>
+} @else {
+  <div class="container">
+    <p>No hay correos electronicos asociados a este evento.</p>
+  </div>
+}

@@ -1,0 +1,112 @@
+<form [formGroup]="activitiesService.form">
+  <input type="hidden" formControlName="codigo" />
+
+  <div class="group-progress">
+    <mat-spinner
+      color="primary"
+      mode="determinate"
+      [value]="activitiesService.form.get('porcentajeProgreso')?.value"
+    ></mat-spinner>
+    <mat-form-field>
+      <mat-label> Porcentaje de Progreso </mat-label>
+      <mat-select
+        placeholder="Porcentaje de Progreso"
+        formControlName="porcentajeProgreso"
+      >
+        <mat-option
+          *ngFor="let value of generateRange(0, 100, 10)"
+          [value]="value"
+        >
+          {{ value }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="form-inputs">
+    <mat-form-field>
+      <mat-label>Descripción</mat-label>
+      <input matInput placeholder="Descripción" formControlName="descripcion" />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Fecha y Hora de Inicio</mat-label>
+      <input
+        matInput
+        placeholder="YYYY-MM-DD HH:MM:SS*"
+        formControlName="fechaHoraInicio"
+      />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Fecha y Hora de Fin</mat-label>
+      <input
+        matInput
+        placeholder="YYYY-MM-DD HH:MM:SS*"
+        formControlName="fechaHoraFin"
+      />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Horas Trabajo</mat-label>
+      <input
+        matInput
+        placeholder="Horas Trabajo"
+        formControlName="horasTrabajo"
+      />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label> Contacto Asignado </mat-label>
+      <mat-select
+        placeholder="Contacto Asignado"
+        formControlName="contactoAsignado"
+      >
+        <mat-option
+          *ngFor="let contact of contactsList"
+          [value]="contact.codigo"
+        >
+          {{ contact.nombres }} {{ contact.apellidos }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label> Estado </mat-label>
+      <mat-select placeholder="Estado*" formControlName="estado">
+        <mat-option
+          *ngFor="let status of activitiesStatusList"
+          [value]="status.codigo"
+        >
+          {{ status.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label> Unidad Trabajo </mat-label>
+      <mat-select placeholder="Unidad Trabajo" formControlName="unidadTrabajo">
+        <mat-option
+          *ngFor="let workUnit of activitiesWorkUnitList"
+          [value]="workUnit.codigo"
+        >
+          {{ workUnit.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="btn-row-container">
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="activitiesService.form.invalid"
+      (click)="onSubmit()"
+    >
+      Guardar
+    </button>
+    <button mat-raised-button color="warn" (click)="onCancel()">
+      Cancelar
+    </button>
+  </div>
+</form>

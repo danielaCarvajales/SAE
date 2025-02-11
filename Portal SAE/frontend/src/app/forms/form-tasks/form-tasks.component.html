@@ -1,0 +1,177 @@
+<form [formGroup]="tasksService.form">
+  <input type="hidden" formControlName="codigo" />
+
+  <div class="group-progress">
+    <mat-spinner
+      color="primary"
+      mode="determinate"
+      [value]="tasksService.form.get('porcentajeProgreso')?.value"
+    ></mat-spinner>
+    <mat-form-field>
+      <mat-label> Porcentaje de Progreso </mat-label>
+      <mat-select
+        placeholder="Porcentaje de Progreso"
+        formControlName="porcentajeProgreso"
+      >
+        <mat-option
+          *ngFor="let value of generateRange(0, 100, 10)"
+          [value]="value"
+          [disabled]="isUserBusinessman"
+        >
+          {{ value }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="form-inputs">
+    <mat-form-field>
+      <mat-label> Asunto </mat-label>
+      <input
+        matInput
+        placeholder="Asunto"
+        formControlName="asunto"
+        [readonly]="isUserBusinessman"
+      />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label> Descripción </mat-label>
+      <input
+        matInput
+        placeholder="Descripción"
+        formControlName="descripcion"
+        [readonly]="isUserBusinessman"
+      />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label> Observación </mat-label>
+      <input matInput placeholder="Observación" formControlName="observacion" />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Fecha y Hora de Inicio</mat-label>
+      <input
+        matInput
+        placeholder="YYYY-MM-DD HH:MM:SS*"
+        formControlName="fechaHoraInicio"
+        [readonly]="isUserBusinessman"
+      />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Fecha y Hora de Fin</mat-label>
+      <input
+        matInput
+        placeholder="YYYY-MM-DD HH:MM:SS*"
+        formControlName="fechaHoraFin"
+        [readonly]="isUserBusinessman"
+      />
+    </mat-form-field>
+
+    @if (isUserConsultant) {
+      <mat-form-field>
+        <mat-label> Cuenta Asignada </mat-label>
+        <mat-select
+          placeholder="Cuenta Asignada"
+          formControlName="cuentaAsignada"
+        >
+          <mat-option
+            *ngFor="let account of accountsList"
+            [value]="account.codigo"
+          >
+            {{ account.paginaWeb }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label> Empresario Asignado </mat-label>
+        <mat-select
+          placeholder="Empresario Asignado"
+          formControlName="empresarioAsignado"
+        >
+          <mat-option
+            *ngFor="let businessman of businessmenList"
+            [value]="businessman.codigo"
+          >
+            {{ businessman.nombre }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    } @else if (isUserBusinessman) {
+      <mat-form-field>
+        <mat-label> Cuenta Asignada </mat-label>
+        <mat-select
+          placeholder="Cuenta Asignada"
+          formControlName="cuentaAsignada"
+        >
+          <mat-option
+            *ngFor="let account of accountsList"
+            [value]="account.codigo"
+            [disabled]="true"
+          >
+            {{ account.paginaWeb }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label> Consultor Asignado </mat-label>
+        <mat-select
+          placeholder="Consultor Asignado"
+          formControlName="consultorAsignado"
+        >
+          <mat-option
+            *ngFor="let consultant of consultantsList"
+            [value]="consultant.codigo"
+            [disabled]="true"
+          >
+            {{ consultant.nombre }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    }
+    <mat-form-field>
+      <mat-label> Estado </mat-label>
+      <mat-select placeholder="Estado" formControlName="estado">
+        <mat-option
+          *ngFor="let status of taskStatusList"
+          [value]="status.codigo"
+          [disabled]="isUserBusinessman"
+        >
+          {{ status.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label> Tipo </mat-label>
+      <mat-select placeholder="Tipo" formControlName="tipo">
+        <mat-option
+          *ngFor="let type of taskTypesList"
+          [value]="type.codigo"
+          [disabled]="isUserBusinessman"
+        >
+          {{ type.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="btn-row-container">
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="tasksService.form.invalid"
+      (click)="onSubmit()"
+    >
+      Guardar
+    </button>
+    <button mat-raised-button color="warn" (click)="onCancel()">
+      Cancelar
+    </button>
+  </div>
+</form>

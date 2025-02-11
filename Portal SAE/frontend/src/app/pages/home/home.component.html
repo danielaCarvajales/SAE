@@ -1,0 +1,65 @@
+<!-- Tool Bar -->
+<mat-toolbar>
+  <button mat-icon-button (click)="sideBarOpen = !sideBarOpen">
+    <mat-icon class="materials-icons">menu</mat-icon>
+  </button>
+
+  <a href="https://siscem.net/">
+    <img src="assets/SISCEM.svg" alt="SISCEM" />
+  </a>
+
+  <button mat-icon-button [mat-menu-trigger-for]="menu">
+    <mat-icon>account_circle</mat-icon>
+  </button>
+
+  <mat-menu #menu="matMenu">
+    <div class="user-info" *ngIf="userName && userRole">
+      <p>NOMBRE: {{ userName }}</p>
+      <p>ROL: {{ userRole }}</p>
+    </div>
+
+    <div class="user-btn">
+      <button mat-fab extended color="warn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Salir</span>
+      </button>
+    </div>
+  </mat-menu>
+</mat-toolbar>
+
+<!-- SideNav Bar -->
+<mat-drawer-container autosize>
+  <mat-drawer mode="side" opened>
+    <mat-nav-list>
+      <!-- Link to Other Pages -->
+      <mat-list-item
+        *ngFor="let link of sideNavLinks"
+        [routerLink]="link.url"
+        [routerLinkActive]="['active-link']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [matTooltip]="sideBarOpen ? '' : link.label"
+        [matTooltipPosition]="'after'"
+      >
+        @if (sideBarOpen) {
+          <div class="link-nav">
+            <mat-icon *ngIf="!link.isLocalIcon">{{ link.icon }}</mat-icon>
+            <img
+              *ngIf="link.isLocalIcon"
+              [src]="link.icon"
+              [alt]="link.label"
+            />
+            <span>{{ link.label }}</span>
+          </div>
+        } @else {
+          <mat-icon *ngIf="!link.isLocalIcon">{{ link.icon }}</mat-icon>
+          <img *ngIf="link.isLocalIcon" [src]="link.icon" [alt]="link.label" />
+        }
+      </mat-list-item>
+    </mat-nav-list>
+  </mat-drawer>
+
+  <!-- Other components are loaded in -->
+  <mat-drawer-content>
+    <router-outlet />
+  </mat-drawer-content>
+</mat-drawer-container>

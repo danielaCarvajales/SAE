@@ -1,0 +1,16 @@
+.container {
+  padding: 25px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: end;
+  position: sticky;
+  top: 0;
+  right: 0;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid;
+  background-color: white;
+  opacity: 0.9;
+}

@@ -1,0 +1,30 @@
+<div style="background-image: url('assets/Background.svg')">
+  <div class="container">
+    <img src="assets/SAE.svg" alt="SAE" />
+
+    <form (submit)="onSubmit(username.value, password.value, $event)">
+      <mat-form-field>
+        <input
+          autocomplete="off"
+          matInput
+          placeholder="Nombre de usuario"
+          type="text"
+          name="username"
+          #username
+          required
+        />
+      </mat-form-field>
+      <mat-form-field>
+        <input
+          matInput
+          placeholder="Contraseña"
+          type="password"
+          name="password"
+          #password
+          required
+        />
+      </mat-form-field>
+      <button mat-raised-button color="primary" type="submit">Enviar</button>
+    </form>
+  </div>
+</div>

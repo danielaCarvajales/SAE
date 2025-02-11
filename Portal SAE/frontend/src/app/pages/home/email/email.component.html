@@ -1,0 +1,89 @@
+<div class="flex m-3 main-container" style="display: flex; flex-direction: column; height: 100%;">
+  <!-- Contenedor del botón con fondo -->
+  <div class="content-container bg-secondary" 
+       style="display: flex; justify-content: flex-end; align-items: center; padding: 10px;">
+    <button mat-fab extended color="primary" (click)="updateEmails()" [disabled]="isLoading || isApiBusy">
+      <mat-icon>updateEmails</mat-icon>
+      <span>Actualizar Correos</span>
+    </button>
+  </div>
+
+  <!-- Tabla de correos con espacio debajo del botón -->
+  <div class="table-container" style="flex-grow: 1; margin-top: 15px;">
+    <table mat-table [dataSource]="tableDataSource" matSort #sort="matSort">
+      <ng-container matColumnDef="seleccion">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox [checked]="areAllRowsSelected()"
+            [indeterminate]="selectedRows.hasValue() && !areAllRowsSelected()"
+            (change)="toggleSelectAll($event.checked)"></mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox [checked]="selectedRows.isSelected(row)"></mat-checkbox>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="codigo">
+        <th mat-sort-header mat-header-cell *matHeaderCellDef>#</th>
+        <td mat-cell *matCellDef="let element">
+          {{ tableDataSource.data.indexOf(element) + 1 }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="remitente">
+        <th mat-sort-header mat-header-cell *matHeaderCellDef>Remitente</th>
+        <td mat-cell *matCellDef="let element">
+          {{ getNameFromEmail(element.remitente) }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="destinatario">
+        <th mat-sort-header mat-header-cell *matHeaderCellDef>Destinatario</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.destinatario }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="asunto">
+        <th mat-sort-header mat-header-cell *matHeaderCellDef>Asunto</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.asunto }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="contenido">
+        <th mat-sort-header mat-header-cell *matHeaderCellDef>Contenido</th>
+        <td mat-cell *matCellDef="let element" (click)="element.contenido ? openDialogWithData(element.contenido) : null">
+          <mat-icon *ngIf="element.contenido">open_in_new</mat-icon>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="fechaEnviado">
+        <th mat-sort-header mat-header-cell *matHeaderCellDef>Fecha Enviado</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.fechaEnviado }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="fechaRecibido">
+        <th mat-sort-header mat-header-cell *matHeaderCellDef>Fecha Recibido</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.fechaRecibido | date:'short' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="eventoAsignado">
+        <th mat-sort-header mat-header-cell *matHeaderCellDef>Evento Asignado</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.eventoAsignado }}
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns" (click)="onRowClick(row, $event)"
+        [class.selected-row]="selectedRows.isSelected(row)"></tr>
+    </table>
+  </div>
+  
+  <!-- Paginador -->
+  <mat-paginator [pageSize]="30" [pageSizeOptions]="[5, 10, 25, 50]" showFirstLastButtons></mat-paginator>
+</div>

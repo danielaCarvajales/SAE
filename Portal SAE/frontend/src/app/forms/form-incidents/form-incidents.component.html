@@ -1,0 +1,124 @@
+<form [formGroup]="incidentsService.form">
+  <input type="hidden" formControlName="codigo" />
+
+  <div class="form-inputs">
+    <mat-form-field>
+      <mat-label>Pregunta</mat-label>
+      <textarea
+        matInput
+        placeholder="Pregunta"
+        formControlName="pregunta"
+      ></textarea>
+    </mat-form-field>
+
+    @if (isUserConsultant) {
+      <mat-form-field>
+        <mat-label>Respuesta</mat-label>
+        <textarea
+          matInput
+          placeholder="Respuesta"
+          formControlName="respuesta"
+        ></textarea>
+      </mat-form-field>
+    } @else {
+      <mat-form-field>
+        <mat-label>Respuesta</mat-label>
+        <textarea
+          matInput
+          placeholder="Respuesta"
+          formControlName="respuesta"
+          readonly
+        ></textarea>
+      </mat-form-field>
+    }
+
+    <mat-form-field>
+      <mat-label>Fecha y Hora de Inicio</mat-label>
+      <input
+        matInput
+        placeholder="YYYY-MM-DD HH:MM:SS*"
+        formControlName="fechaHoraInicio"
+      />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Fecha y Hora de Fin</mat-label>
+      <input
+        matInput
+        placeholder="YYYY-MM-DD HH:MM:SS*"
+        formControlName="fechaHoraFin"
+      />
+    </mat-form-field>
+
+    @if (isUserConsultant) {
+      <mat-form-field>
+        <mat-label> Empresario Asignado </mat-label>
+        <mat-select
+          placeholder="Empresario Asignado*"
+          formControlName="codigoEmpresario"
+        >
+          <mat-option
+            *ngFor="let businessman of businessmenList"
+            [value]="businessman.codigo"
+          >
+            {{ businessman.nombre }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    } @else {
+      <mat-form-field>
+        <mat-label> Consultor Asignado </mat-label>
+        <mat-select
+          placeholder="Consultor Asignado*"
+          formControlName="codigoConsultor"
+        >
+          <mat-option
+            *ngFor="let consultant of consultantsList"
+            [value]="consultant.codigo"
+          >
+            {{ consultant.nombre }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    }
+
+    <mat-form-field>
+      <mat-label> Categoria </mat-label>
+      <mat-select placeholder="Categoria" formControlName="categoria">
+        <mat-option
+          *ngFor="let category of incidentsCategoriesList"
+          [value]="category.codigo"
+        >
+          {{ category.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label> Estado </mat-label>
+      <mat-select placeholder="Estado" formControlName="estado">
+        <mat-option
+          *ngFor="let status of incidentsStatusList"
+          [value]="status.codigo"
+        >
+          {{ status.nombre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="btn-row-container">
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="incidentsService.form.invalid"
+      (click)="onSubmit()"
+    >
+      Guardar
+    </button>
+    <button mat-raised-button color="warn" (click)="onCancel()">
+      Cancelar
+    </button>
+  </div>
+</form>

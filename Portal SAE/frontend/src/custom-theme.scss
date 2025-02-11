@@ -1,0 +1,95 @@
+@use '@angular/material' as mat;
+@include mat.core();
+
+$md-main: (
+  50: #e2eef7,
+  100: #b7d5ea,
+  200: #88b9dd,
+  300: #589ccf,
+  400: #3487c4,
+  500: #1072ba,
+  600: #0e6ab3,
+  700: #0c5fab,
+  800: #0955a3,
+  900: #054294,
+  A100: #c0d7ff,
+  A200: #8db7ff,
+  A400: #5a96ff,
+  A700: #4186ff,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #000000,
+    300: #000000,
+    400: #ffffff,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+    A100: #000000,
+    A200: #000000,
+    A400: #000000,
+    A700: #ffffff,
+  ),
+);
+
+$md-warn: (
+  50: #fcf8e3,
+  100: #f9efb8,
+  200: #f5e489,
+  300: #f0d95a,
+  400: #edd036,
+  500: #eac813,
+  600: #e7c211,
+  700: #e4bb0e,
+  800: #e1b40b,
+  900: #dba706,
+  A100: #ffffff,
+  A200: #fff2d0,
+  A400: #ffe49d,
+  A700: #ffdd84,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #000000,
+    300: #000000,
+    400: #000000,
+    500: #000000,
+    600: #000000,
+    700: #000000,
+    800: #000000,
+    900: #000000,
+    A100: #000000,
+    A200: #000000,
+    A400: #000000,
+    A700: #000000,
+  ),
+);
+
+$frontend-primary: mat.define-palette($md-main);
+$frontend-accent: mat.define-palette($md-warn);
+
+// The warn palette is optional (defaults to red).
+$frontend-warn: mat.define-palette(mat.$red-palette);
+
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as "color" or "typography".
+$frontend-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $frontend-primary,
+      accent: $frontend-accent,
+      warn: $frontend-warn,
+    ),
+  )
+);
+
+:root {
+  --mdc-filled-text-field-container-color: white;
+}
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include mat.all-component-themes($frontend-theme);

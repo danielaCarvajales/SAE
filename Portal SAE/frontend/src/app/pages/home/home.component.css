@@ -1,0 +1,59 @@
+mat-toolbar {
+  gap: 20px;
+  height: 45px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #1d8fda;
+}
+
+mat-toolbar img {
+  width: 70px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  padding: 0 15px;
+}
+
+.user-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mat-mdc-extended-fab {
+  border-radius: 5px;
+}
+
+/* Calculates View Height with the height of mat-toolbar */
+mat-drawer-container {
+  height: calc(100vh - 45px);
+}
+
+mat-drawer {
+  background-color: #1d8fda;
+}
+
+mat-icon {
+  color: #f1f8fe;
+}
+
+mat-drawer img {
+  width: 24px;
+}
+
+.link-nav {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  border-radius: 5px;
+  padding: 10px;
+  color: #f1f8fe;
+}
+
+.active-link {
+  background-color: #0e5b96;
+}
