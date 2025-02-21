@@ -1,0 +1,9 @@
+table th {
+    border: 1px solid #ddd; 
+  }
+  
+  th.bg-white.border-0 {
+    border: none !important;
+  }
+  
+ 

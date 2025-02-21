@@ -235,4 +235,6 @@ export class EventsComponent implements OnInit {
     await this.eventsService.delete(this.row.codigo);
     this.fetchData();
   }
+
+  
 }

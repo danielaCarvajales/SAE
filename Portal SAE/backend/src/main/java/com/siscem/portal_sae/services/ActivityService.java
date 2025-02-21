@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.siscem.portal_sae.dtos.event.EventCreateDTO;
+import com.siscem.portal_sae.models.Event;
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
@@ -26,6 +28,7 @@ import com.siscem.portal_sae.repositories.ContactRepository;
 import com.siscem.portal_sae.repositories.TaskRepository;
 import com.siscem.portal_sae.repositories.Relationships.ActivityStatusRepository;
 import com.siscem.portal_sae.repositories.Relationships.WorkUnitsActivityRepository;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
 public class ActivityService {
@@ -109,7 +112,6 @@ public class ActivityService {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al crear la actividad");
 		}
 	}
-
 	/**
 	 * Edits an existing activity based on the provided ActivityEditDTO.
 	 * 

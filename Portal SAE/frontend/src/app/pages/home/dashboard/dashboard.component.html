@@ -1,70 +1,119 @@
 <div class="d-flex justify-content-between align-items-center mt-3 p-4 w-100">
-    <h4 class="page-heading mb-0">VISTA CALENDARIO</h4>
-    <ol class="breadcrumb mb-0 d-flex gap-3 wow fadeInDown" data-wow-delay="0.3s">
-        <li class="breadcrumb-item ">
-            <a href="#" [routerLink]="['/hogar/eventos']" routerLinkActive="router-link-active" class="text-dark">
-                <i class="fa-solid fa-circle-plus"></i> Añadir Evento
-            </a>
-        </li>
-        <li class="breadcrumb-item ">
-            <a href="#" routerLink="/hogar/tareas" class="text-dark">
-                <i class="fa-solid fa-person-circle-plus "></i> Añadir Tarea
-            </a>
-        </li>
-    </ol>
+  <h4 class="page-heading mb-0">VISTA CALENDARIO</h4>
+  <ol class="breadcrumb mb-0 d-flex gap-3 wow fadeInDown" data-wow-delay="0.3s">
+    <li class="breadcrumb-item ">
+      <a href="#" [routerLink]="['/hogar/eventos']" routerLinkActive="router-link-active" class="text-dark">
+        <i class="fa-solid fa-circle-plus"></i> Añadir Evento
+      </a>
+    </li>
+    <li class="breadcrumb-item ">
+      <a href="#" routerLink="/hogar/tareas" class="text-dark">
+        <i class="fa-solid fa-person-circle-plus "></i> Añadir Tarea
+      </a>
+    </li>
+  </ol>
 </div>
 
 <div class="row mt-3 p-4 w-100">
 
-    <div class="col-12 col-md-2 ">
-        <div class="h-100 card border-0">
-            <div class="card p-3 bg-danger border-0 mb-2">
-              <div class="d-flex justify-content-between align-items-center">
-                <h4 class="m-0" style="color: rgb(48, 46, 46) !important;">Soluciones</h4>
-                <div>
-                  <i class="fas fa-edit me-3" style="cursor: pointer;"></i>
-                  <i class="fas fa-trash" style="cursor: pointer;"></i>
-                </div>
-              </div>
-            </div>
-          
-            <div class="card p-3 mb-2 bg-danger border-0">
-              <div class="d-flex justify-content-between align-items-center">
-                <h4 class="m-0" style="color: rgb(48, 46, 46) !important;">Citas</h4>
-                <div>
-                  <i class="fas fa-edit me-3" style="cursor: pointer;"></i>
-                  <i class="fas fa-trash" style="cursor: pointer;"></i>
-                </div>
-              </div>
-            </div>
-          
-            <div class="card p-3 mb-2 bg-danger border-0">
-              <div class="d-flex justify-content-between align-items-center">
-                <h4 class="m-0" style="color: rgb(48, 46, 46) !important;">Contabilidad</h4>
-                <div>
-                  <i class="fas fa-edit me-3" style="cursor: pointer;"></i>
-                  <i class="fas fa-trash" style="cursor: pointer;"></i>
-                </div>
-              </div>
-            </div>
-          
-            <div class="card p-3 mb-2 bg-danger border-0">
-              <div class="d-flex justify-content-between align-items-center">
-                <h4 class="m-0" style="color: rgb(48, 46, 46) !important;">Reuniones</h4>
-                <div>
-                  <i class="fas fa-edit me-3" style="cursor: pointer;"></i>
-                  <i class="fas fa-trash" style="cursor: pointer;"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-          
+  <div class="col-12 col-md-2 ">
+    <div class="p-2 my-3 text-center border-0">
+      <h5 class="m-0 text-dark">TIPOS ACTIVIDAD
+        <i class="fa-regular fa-square-plus text-dark"></i>
+      </h5>
+      <div style="width: 100%; height: 2px; background-color: rgb(230, 225, 225); margin-top: 8px;"></div>
     </div>
 
-    <!-- Segunda columna -->
-    <div class="col-12 col-md-10">
-        <div class="d-flex justify-content-between align-items-center">
-            <!-- Aquí va el contenido que estaba dentro del div original -->
+    <div class="h-100 card border-0">
+      <div class="container mt-3">
+        <div class="d-flex flex-column gap-3">
+          <button 
+          class="btn d-flex justify-content-between align-items-center w-100 rounded-0" 
+          [ngStyle]="{'background-color': getColorByIndex(0), 'color': 'white'}"
+          (click)="loadingActivity('incidencia')" >
+          <span class="h5 text-white m-0">Incidencias</span>
+          <a class="text-white" routerLink="/hogar/incidencias">  <i class="fa-regular fa-eye"> </i></a>
+        </button>
+      
+        <button 
+          class="btn d-flex justify-content-between align-items-center w-100 rounded-0" 
+          [ngStyle]="{'background-color': getColorByIndex(1), 'color': 'white'}" 
+          (click)="loadingActivity('evento')" >
+          <span class="h5 text-white m-0">Eventos</span>
+          <a class="text-white" routerLink="/hogar/eventos"> <i class="fa-regular fa-eye"></i></a>
+        </button>
+      
+        <button 
+          class="btn d-flex justify-content-between align-items-center w-100 rounded-0" 
+          [ngStyle]="{'background-color': getColorByIndex(3), 'color': 'white'}"
+          (click)="loadingActivity('tarea')" >
+          <span class="h5 text-white m-0">Tareas</span>
+        <a class="text-white" routerLink="/hogar/tareas"><i class="fa-regular fa-eye"></i></a>  
+        </button>
         </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Segunda columna -->
+  <div class="col-12 col-md-10">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="container mt-4">
+        <!-- Encabezado con botones -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <button class="btn btn-outline-secondary rounded-0 text-white"
+              style="background-color:rgb(2, 3, 51);">Mes</button>
+            <button class="btn btn-dark rounded-0 text-white" style="background-color:rgb(3, 4, 44);">Semana</button>
+            <button class="btn btn-outline-secondary rounded-0 text-white"
+              style="background-color:rgb(3, 4, 44);">Día</button>
+            <button class="btn btn-outline-secondary rounded-0 text-white"
+              style="background-color:rgb(3, 4, 44);">Agenda</button>
+          </div>
+          <h4 class="text-center flex-grow-1">{{ currentWeek }}</h4>
+          <div>
+            <button class="btn btn-outline-dark border-0">Hoy</button>
+            <button class="btn btn-outline-dark border-0" (click)="navigateWeek(-1)">&larr;</button>
+            <button class="btn " (click)="toggleDatepicker()">
+              <i class="fa-solid fa-calendar-days border-0 "></i>
+            </button>
+            <button class="btn btn-outline-dark border-0 fw-bold" (click)="navigateWeek(1)">&rarr;</button>
+          </div>
+        </div>
+        <div *ngIf="showDatepicker" class="d-flex justify-content-end mt-2 p-2">
+          <bs-datepicker-inline [bsConfig]="datepickerConfig" [(bsValue)]="selectedDate"
+            (bsValueChange)="onDateSelect($event)"></bs-datepicker-inline>
+        </div>
+
+        <!-- Tabla del calendario -->
+        <div class="table-responsive border-0">
+          <table class="table table-bordered text-center">
+            <thead class="table-dark text-white">
+              <tr>
+                <th class="bg-white" style="border-top: none !important; border-bottom: none !important;"></th>
+                <th *ngFor="let day of daysOfWeek" class=" text-white" style="background-color: rgb(3, 4, 44);">
+                  {{ day.name }} <span class="small">{{ day.date }}</span>
+                </th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="all-day-cell">All Day</td>
+                <td *ngFor="let day of daysOfWeek" class="all-day-events">
+                </td>
+              </tr>
+              <tr *ngFor="let hour of hours">
+                <td class="hour-cell">{{ hour }}</td>
+                <td *ngFor="let day of daysOfWeek">
+                  <!-- Espacios para eventos -->
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
