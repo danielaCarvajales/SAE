@@ -79,12 +79,8 @@ export class DashboardComponent implements OnInit {
     this.colors = [
       '#0d2296',
       '#3d81f4',
-      '#be8123',
       '#99211f',
-      '#525253',
-      '#868c6a',
-      '#f70293',
-      '#198119',
+
     ];
     this.actividades = [];
     this.calendarData = {};
@@ -121,9 +117,12 @@ export class DashboardComponent implements OnInit {
   }
 
   getDayHours(): string[] {
-    return Array.from({ length: 24 }, (_, i) => `${(i % 12 || 12).toString().padStart(2, '0')}${i < 12 ? ' am' : ' pm'}`);
+    return Array.from({ length: 24 }, (_, i) => {
+      const hour = i % 12 || 12; 
+      const period = i < 12 ? 'AM' : 'PM'; 
+      return `${hour.toString().padStart(2, '0')} ${period}`; 
+    });
   }
-
   togglerCheck() {
     this.isChecked = !this.isChecked;
     localStorage.setItem('isChecked', this.isChecked.toString());
@@ -187,24 +186,30 @@ export class DashboardComponent implements OnInit {
 
   updateCalendar() {
     console.log('Actividades cargadas:', this.activityData);
-
+  
     try {
       this.calendarData = this.activityData.reduce((acc, actividad) => {
         const fechaActividad = actividad.fechaHoraInicio;
-
+  
         if (!fechaActividad) {
           console.warn('Actividad sin fecha válida:', actividad);
           return acc;
         }
+  
         const dateKey = formatDate(fechaActividad, 'dd/MM/yyyy', 'en-US');
-        const hora = new Date(fechaActividad).getHours();
-        actividad.hora = `${hora % 12 === 0 ? 12 : hora % 12}${hora < 12 ? ' am' : ' pm'}`;
+        const hora24 = new Date(fechaActividad).getHours(); // Hora en formato de 24 horas
+        const hora12 = hora24 % 12 || 12; // Convertir a formato de 12 horas
+        const period = hora24 < 12 ? 'AM' : 'PM'; // Determinar si es AM o PM
+        actividad.hora = `${hora12.toString().padStart(2, '0')} ${period}`; // Formato: "02 AM", "02 PM", etc.
+  
         console.log('Actividad:', actividad.asunto, 'Hora:', actividad.hora);
+  
         if (!acc[dateKey]) acc[dateKey] = [];
         acc[dateKey].push(actividad);
+  
         return acc;
       }, {} as { [key: string]: any[] });
-
+  
     } catch (error) {
       console.error('Error al actualizar el calendario:', error);
     }
