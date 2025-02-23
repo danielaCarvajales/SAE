@@ -19,7 +19,7 @@
   <div class="col-12 col-md-2 ">
     <div class="p-2 my-3 text-center border-0">
       <h5 class="m-0 text-dark">TIPOS ACTIVIDAD
-        <i class="fa-regular fa-square-plus text-dark"></i>
+        <i class="fa-brands fa-creative-commons-nd fa-bounce"></i>
       </h5>
       <div style="width: 100%; height: 2px; background-color: rgb(230, 225, 225); margin-top: 8px;"></div>
     </div>
@@ -27,29 +27,24 @@
     <div class="h-100 card border-0">
       <div class="container mt-3">
         <div class="d-flex flex-column gap-3">
-          <button 
-          class="btn d-flex justify-content-between align-items-center w-100 rounded-0" 
-          [ngStyle]="{'background-color': getColorByIndex(0), 'color': 'white'}"
-          (click)="loadingActivity('incidencia')" >
-          <span class="h5 text-white m-0">Incidencias</span>
-          <a class="text-white" routerLink="/hogar/incidencias">  <i class="fa-regular fa-eye"> </i></a>
-        </button>
-      
-        <button 
-          class="btn d-flex justify-content-between align-items-center w-100 rounded-0" 
-          [ngStyle]="{'background-color': getColorByIndex(1), 'color': 'white'}" 
-          (click)="loadingActivity('evento')" >
-          <span class="h5 text-white m-0">Eventos</span>
-          <a class="text-white" routerLink="/hogar/eventos"> <i class="fa-regular fa-eye"></i></a>
-        </button>
-      
-        <button 
-          class="btn d-flex justify-content-between align-items-center w-100 rounded-0" 
-          [ngStyle]="{'background-color': getColorByIndex(3), 'color': 'white'}"
-          (click)="loadingActivity('tarea')" >
-          <span class="h5 text-white m-0">Tareas</span>
-        <a class="text-white" routerLink="/hogar/tareas"><i class="fa-regular fa-eye"></i></a>  
-        </button>
+          <button class="btn d-flex justify-content-between align-items-center w-100 rounded-0"
+            [ngStyle]="{'background-color': getColorByIndex(0), 'color': 'white'}"
+            (click)="loadingActivity('incidencia')">
+            <span class="h5 text-white m-0">Incidencias</span>
+            <a class="text-white" routerLink="/hogar/incidencias"> <i class="fa-regular fa-eye"> </i></a>
+          </button>
+
+          <button class="btn d-flex justify-content-between align-items-center w-100 rounded-0"
+            [ngStyle]="{'background-color': getColorByIndex(1), 'color': 'white'}" (click)="loadingActivity('evento')">
+            <span class="h5 text-white m-0">Eventos</span>
+            <a class="text-white" routerLink="/hogar/eventos"> <i class="fa-regular fa-eye"></i></a>
+          </button>
+
+          <button class="btn d-flex justify-content-between align-items-center w-100 rounded-0"
+            [ngStyle]="{'background-color': getColorByIndex(3), 'color': 'white'}" (click)="loadingActivity('tarea')">
+            <span class="h5 text-white m-0">Tareas</span>
+            <a class="text-white" routerLink="/hogar/tareas"><i class="fa-regular fa-eye"></i></a>
+          </button>
         </div>
       </div>
     </div>
@@ -62,17 +57,18 @@
         <!-- Encabezado con botones -->
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
-            <button class="btn btn-outline-secondary rounded-0 text-white"
-              style="background-color:rgb(2, 3, 51);">Mes</button>
-            <button class="btn btn-dark rounded-0 text-white" style="background-color:rgb(3, 4, 44);">Semana</button>
-            <button class="btn btn-outline-secondary rounded-0 text-white"
-              style="background-color:rgb(3, 4, 44);">Día</button>
-            <button class="btn btn-outline-secondary rounded-0 text-white"
-              style="background-color:rgb(3, 4, 44);">Agenda</button>
+            <div>
+              <button class="btn btn-outline-secondary rounded-0 text-white" style="background-color:rgb(2, 3, 51);"
+                (click)="switchToMonthView()">Mes</button>
+              <button class="btn btn-dark rounded-0 text-white" style="background-color:rgb(3, 4, 44);"
+                (click)="switchToWeekView()">Semana</button>
+              <button class="btn btn-outline-secondary rounded-0 text-white" style="background-color:rgb(3, 4, 44);"
+                (click)="switchToDayView()">Día</button>
+            </div>
           </div>
           <h4 class="text-center flex-grow-1">{{ currentWeek }}</h4>
           <div>
-            <button class="btn btn-outline-dark border-0">Hoy</button>
+            <button class="btn btn-outline-dark border-0" (click)="goToToday()">Hoy</button>
             <button class="btn btn-outline-dark border-0" (click)="navigateWeek(-1)">&larr;</button>
             <button class="btn " (click)="toggleDatepicker()">
               <i class="fa-solid fa-calendar-days border-0 "></i>
@@ -94,7 +90,6 @@
                 <th *ngFor="let day of daysOfWeek" class=" text-white" style="background-color: rgb(3, 4, 44);">
                   {{ day.name }} <span class="small">{{ day.date }}</span>
                 </th>
-
               </tr>
             </thead>
             <tbody>
@@ -106,7 +101,13 @@
               <tr *ngFor="let hour of hours">
                 <td class="hour-cell">{{ hour }}</td>
                 <td *ngFor="let day of daysOfWeek">
-                  <!-- Espacios para eventos -->
+                  <ng-container *ngFor="let activity of calendarData[day.date]">
+                    <div *ngIf="activity.hora === hour && isActivityVisible(activity, day.date)"
+                         style="background-color: rgb(40, 100, 168); border-radius: 0 !important;"
+                         class="p-1 rounded text-center mt-1 text-white">
+                      {{ activity.asunto }} {{ activity.pregunta }}
+                    </div>
+                  </ng-container>
                 </td>
               </tr>
             </tbody>
