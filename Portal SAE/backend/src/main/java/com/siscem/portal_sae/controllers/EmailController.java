@@ -30,62 +30,37 @@ public class EmailController {
 	@Autowired
 	private JwtService jwtService;
 
-	@PostMapping("/capturar")
-	@Operation(summary = "Retrieves and saves all emails from user")
-	public ResponseEntity<String> retrieveAndSaveEmails(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
-														@RequestBody EmailDetailsDTO email) {
-		if (authorizationHeader == null || authorizationHeader.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body("Authorization header is missing");
-		}
-
+	@PostMapping("/send")
+	@Operation(summary = "Sends an email using Gmail API")
+	public ResponseEntity<String> sendEmail(
+			@RequestHeader("Authorization") String authorizationHeader,
+			@RequestParam String to,
+			@RequestParam String subject,
+			@RequestParam String body,
+			@RequestParam Integer userCode) {
 		if (jwtService.validateToken(authorizationHeader)) {
-			return emailService.retrieveAndSaveEmails(email.getAnfitrion(), email.getCorreo(), email.getContrasena(),
-					email.getProtocolo(), email.getPuerto(), email.getCodigoUsuario());
+			return emailService.sendEmail(to, subject, body, userCode);
 		} else {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 	}
 
-
-	@GetMapping("/listar/usuario/{userCode}")
-	@Operation(summary = "Retrieves all emails from a specified user")
-	public ResponseEntity<List<EmailDTO>> getAllUserEmails(@RequestHeader("Authorization") String authorizationHeader,
+	// Endpoint para obtener correos de un usuario (sin DTO)
+	@GetMapping("/user/{userCode}")
+	@Operation(summary = "Retrieves all emails from a specified user (raw)")
+	public ResponseEntity<List<Email>> getEmails(
+			@RequestHeader("Authorization") String authorizationHeader,
 			@PathVariable Integer userCode) {
 		if (jwtService.validateToken(authorizationHeader)) {
-			return emailService.getAllUserEmails(userCode);
+			return emailService.getEmails(userCode);
 		} else {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 	}
 
-
-	@GetMapping("/listar/evento/{eventCode}")
-	@Operation(summary = "Retrieves all emails from a specified event")
-	public ResponseEntity<List<EmailDTO>> getAllEventEmails(@RequestHeader("Authorization") String authorizationHeader,
-			@PathVariable Integer eventCode) {
-		if (jwtService.validateToken(authorizationHeader)) {
-			return emailService.getAllEventEmails(eventCode);
-		} else {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		}
+	@GetMapping("/test")
+	public ResponseEntity<String> testEmail() {
+		return ResponseEntity.ok("API de Mail está funcionando en el puerto 8080");
 	}
-
-
-
-	@PutMapping("/evento/{eventCode}")
-	@Operation(summary = "Updates the assigned events of an email")
-	public ResponseEntity<String> updateAssignedEvents(@RequestHeader("Authorization") String authorizationHeader,
-			@PathVariable Integer eventCode, @RequestBody List<String> email) {
-		if (jwtService.validateToken(authorizationHeader)) {
-			return emailService.updateAssignedEvents(eventCode, email);
-		} else {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		}
-	}
-
-
-
-
 
 }

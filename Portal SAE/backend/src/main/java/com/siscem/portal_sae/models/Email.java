@@ -18,16 +18,19 @@ public class Email {
 	@Id
 	private String codigo;
 
-	@Column(name = "remitente", nullable = true, length = 10000)
+	@Column(name = "thread_id", nullable = true, length = 255) //Importante, para
+	private String threadId;
+
+	@Column(name = "remitente", nullable = true, length = 1500)
 	private String remitente;
 
-	@Column(name = "destinatario", nullable = true, length = 10000)
+	@Column(name = "destinatario", nullable = true, length = 1500)
 	private String destinatario;
 
-	@Column(name = "asunto", nullable = true, length = 10000)
+	@Column(name = "asunto", nullable = true, length = 1500)
 	private String asunto;
 
-	@Column(name = "contenido", nullable = true, length = 10000)
+	@Column(name = "contenido", nullable = true, length = 1500)
 	private String contenido;
 
 	@Column(name = "fecha_enviado", nullable = true)

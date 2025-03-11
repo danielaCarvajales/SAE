@@ -47,6 +47,7 @@ export class DashboardComponent implements OnInit {
   public columns!: string[];
   public selectedRows = new SelectionModel<ActivityDTO>(false, []);
   public tableDataSource = new MatTableDataSource<ActivityDTO>([]);
+  public filteredActivityData: any[];
 
   private colors: string[];
   private actividades: any[]
@@ -54,11 +55,12 @@ export class DashboardComponent implements OnInit {
   private userRole!: string | null;
 
   public calendarData: { [key: string]: any[] };
-
   public activityData: any[];
-
   public currentView: 'day' | 'week' | 'month' = 'week';
 
+
+  public selectedType: string | null;
+  public availableStatuses: string[];
 
   constructor(private apiService: ApiService, private localeService: BsLocaleService,
     private userService: UserService, private cdr: ChangeDetectorRef) {
@@ -77,14 +79,20 @@ export class DashboardComponent implements OnInit {
       showWeekNumbers: false
     });
     this.colors = [
-      '#0d2296',
-      '#3d81f4',
-      '#99211f',
+      'rgb(8, 21, 82)', 
+      'rgb(33, 97, 150)', /* */
+          'rgb(53, 107, 75)',
+      
+     
+      
 
     ];
+    this.filteredActivityData = [];
     this.actividades = [];
     this.calendarData = {};
     this.activityData = [];
+    this.selectedType = null;
+    this.availableStatuses = [];
   }
 
   ngOnInit(): void {
@@ -118,16 +126,13 @@ export class DashboardComponent implements OnInit {
 
   getDayHours(): string[] {
     return Array.from({ length: 24 }, (_, i) => {
-      const hour = i % 12 || 12; 
-      const period = i < 12 ? 'AM' : 'PM'; 
-      return `${hour.toString().padStart(2, '0')} ${period}`; 
+      const hour = i % 12 || 12;
+      const period = i < 12 ? 'AM' : 'PM';
+      return `${hour.toString().padStart(2, '0')} ${period}`;
     });
   }
-  togglerCheck() {
-    this.isChecked = !this.isChecked;
-    localStorage.setItem('isChecked', this.isChecked.toString());
-  }
-
+  
+ 
   calculateCurrentWeek(referenceDate?: Date): void {
     const today = referenceDate || new Date();
     const firstDayOfWeek = new Date(today);
@@ -168,51 +173,78 @@ export class DashboardComponent implements OnInit {
     return this.colors[index % this.colors.length];
   }
 
+
   loadingActivity(tipo: string) {
     let url = `${tipo}/usuario/${this.userCode}/${this.userRole}`;
-
+  
     this.apiService.get(url).then(
       (data) => {
-        console.log('Datos recibidos:', data);
         this.activityData = data;
+        this.filteredActivityData = [...data]; 
         this.updateCalendar();
-        this.cdr.detectChanges(); // Forzar la detección de cambios
+        this.cdr.detectChanges();
       },
       (error) => {
         console.error(`Error al obtener ${tipo}:`, error);
       }
     );
-  }
-
-  updateCalendar() {
-    console.log('Actividades cargadas:', this.activityData);
   
-    try {
-      this.calendarData = this.activityData.reduce((acc, actividad) => {
-        const fechaActividad = actividad.fechaHoraInicio;
-  
-        if (!fechaActividad) {
-          console.warn('Actividad sin fecha válida:', actividad);
-          return acc;
-        }
-  
-        const dateKey = formatDate(fechaActividad, 'dd/MM/yyyy', 'en-US');
-        const hora24 = new Date(fechaActividad).getHours(); // Hora en formato de 24 horas
-        const hora12 = hora24 % 12 || 12; // Convertir a formato de 12 horas
-        const period = hora24 < 12 ? 'AM' : 'PM'; // Determinar si es AM o PM
-        actividad.hora = `${hora12.toString().padStart(2, '0')} ${period}`; // Formato: "02 AM", "02 PM", etc.
-  
-        console.log('Actividad:', actividad.asunto, 'Hora:', actividad.hora);
-  
-        if (!acc[dateKey]) acc[dateKey] = [];
-        acc[dateKey].push(actividad);
-  
-        return acc;
-      }, {} as { [key: string]: any[] });
-  
-    } catch (error) {
-      console.error('Error al actualizar el calendario:', error);
+    this.selectedType = tipo;
+    switch (tipo) {
+      case 'tarea':
+        this.availableStatuses = ['No iniciada', 'En progreso', 'Terminada', 'Planeada'];
+        break;
+      case 'evento':
+        this.availableStatuses = ['Planeado', 'Realizado', 'Pendiente', 'Cancelado'];
+        break;
+      case 'incidencia':
+        this.availableStatuses = ['Revisada', 'En curso', 'Resuelta'];
+        break;
     }
+  }
+  
+  applyFilter(estado: string) {
+    this.filteredActivityData = this.activityData.filter(actividad => 
+      actividad.estado.trim().toLowerCase() === estado.trim().toLowerCase());
+      console.log('Estados en la base de datos:', this.activityData.map(a => a.estado));
+
+    console.log('Estado seleccionado:', estado, 'Filtradas:', this.filteredActivityData);
+
+    this.updateCalendar();
+  }
+  
+  updateCalendar() {
+    this.calendarData = {};
+  
+    this.filteredActivityData.forEach(actividad => {
+      if (!actividad.fechaHoraInicio) return;
+  
+      const fechaActividad = new Date(actividad.fechaHoraInicio);
+      const dateKey = formatDate(fechaActividad, 'dd/MM/yyyy', 'en-US');
+      const hora24 = fechaActividad.getHours();
+      const hora12 = hora24 % 12 || 12;
+      const period = hora24 < 12 ? 'AM' : 'PM';
+      actividad.hora = `${hora12.toString().padStart(2, '0')} ${period}`;
+  
+      if (!this.calendarData[dateKey]) {
+        this.calendarData[dateKey] = [];
+      }
+      this.calendarData[dateKey].push(actividad);
+    });
+  }
+  
+  isActivityVisible(activity: any, dateKey: string): boolean {
+    const activityDate = new Date(activity.fechaHoraInicio);
+    const selectedDate = new Date(this.selectedDate);
+  
+    if (this.currentView === 'day') {
+      return formatDate(activityDate, 'dd/MM/yyyy', 'en-US') === formatDate(selectedDate, 'dd/MM/yyyy', 'en-US');
+    } else if (this.currentView === 'week') {
+      return true;
+    } else if (this.currentView === 'month') {
+      return activityDate.getMonth() === selectedDate.getMonth() && activityDate.getFullYear() === selectedDate.getFullYear();
+    }
+    return false;
   }
 
   switchToDayView() {
@@ -248,27 +280,12 @@ export class DashboardComponent implements OnInit {
     for (let day = startOfMonth; day <= endOfMonth; day.setDate(day.getDate() + 1)) {
       const formattedDate = formatDate(day, 'dd/MM/yyyy', 'en-US');
       this.daysOfWeek.push({
-        name: formatDate(day, 'EEE', 'en-US'), 
+        name: formatDate(day, 'EEE', 'en-US'),
         date: formattedDate
       });
     }
   }
 
-  isActivityVisible(activity: any, dateKey: string): boolean {
-    const activityDate = new Date(activity.fechaHoraInicio);
-    const selectedDate = new Date(this.selectedDate);
-  
-    if (this.currentView === 'day') {
-      return formatDate(activityDate, 'dd/MM/yyyy', 'en-US') === formatDate(selectedDate, 'dd/MM/yyyy', 'en-US');
-    } else if (this.currentView === 'week') {
-      return true;
-    } else if (this.currentView === 'month') {
-      return activityDate.getMonth() === selectedDate.getMonth() && activityDate.getFullYear() === selectedDate.getFullYear();
-    }
-    return false;
-  }
-
-  
   navigate(direction: number): void {
     if (this.currentView === 'day') {
       this.selectedDate.setDate(this.selectedDate.getDate() + direction);
@@ -294,4 +311,19 @@ export class DashboardComponent implements OnInit {
     }
     this.calculateCurrentWeek(this.selectedDate);
   }
+
+  getColorByType(): string {
+    switch (this.selectedType) {
+      case 'incidencia':
+        return this.colors[0]; 
+      case 'evento':
+        return this.colors[1]; 
+      case 'tarea':
+        return this.colors[2]; 
+      default:
+        return this.colors[3]; 
+    }
+  }
+  
+
 }

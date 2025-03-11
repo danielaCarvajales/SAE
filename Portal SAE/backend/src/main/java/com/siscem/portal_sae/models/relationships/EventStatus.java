@@ -26,7 +26,6 @@ public class EventStatus {
 	private String nombreEstado;
 
 	// Foreign Keys
-
 	@OneToMany(mappedBy = "estado")
 	private List<Event> eventos;
 
