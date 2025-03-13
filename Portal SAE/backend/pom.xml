@@ -27,10 +27,34 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+
+		<!-- Jakarta Mail API -->
+		<dependency>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+
+		<!-- Implementación de Jakarta Mail -->
+		<dependency>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>jakarta.mail</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+
+		<!-- Spring Boot Mail Starter (excluyendo angus-mail) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.eclipse.angus</groupId>
+					<artifactId>angus-mail</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
+
+		<!-- Otras dependencias -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -49,6 +73,14 @@
 			<artifactId>google-api-client</artifactId>
 			<version>1.31.5</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.angus</groupId>
+			<artifactId>jakarta.mail</artifactId>
+			<version>2.0.2</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>com.google.apis</groupId>
 			<artifactId>google-api-services-gmail</artifactId>
@@ -60,14 +92,11 @@
 			<artifactId>google-oauth-client-jetty</artifactId>
 			<version>1.32.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.google.http-client</groupId>
 			<artifactId>google-http-client-gson</artifactId>
 			<version>1.42.3</version>
 		</dependency>
-
-
 		<dependency>
 			<groupId>com.google.oauth-client</groupId>
 			<artifactId>google-oauth-client</artifactId>
@@ -78,13 +107,11 @@
 			<artifactId>google-http-client-jackson2</artifactId>
 			<version>1.39.2</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.google.apis</groupId>
 			<artifactId>google-api-services-drive</artifactId>
 			<version>v3-rev20211107-1.32.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.google.auth</groupId>
 			<artifactId>google-auth-library-oauth2-http</artifactId>
@@ -126,11 +153,6 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.2.0</version>
 		</dependency>
-		<dependency>
-			<groupId>com.sun.mail</groupId>
-			<artifactId>jakarta.mail</artifactId>
-			<version>1.6.7</version>
-		</dependency>
 
 		<!-- Base de Datos -->
 		<dependency>
@@ -139,7 +161,6 @@
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>

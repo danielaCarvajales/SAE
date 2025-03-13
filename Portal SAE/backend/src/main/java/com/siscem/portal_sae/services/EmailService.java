@@ -6,22 +6,26 @@ import com.siscem.portal_sae.models.Email;
 import com.siscem.portal_sae.models.User;
 import com.siscem.portal_sae.repositories.EmailRepository;
 import com.siscem.portal_sae.repositories.UserRepository;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.internet.InternetAddress;
+import java.util.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
-import java.util.Properties;
+import com.google.api.services.gmail.model.ListMessagesResponse;
+import com.google.api.services.gmail.model.Message;
+
 
 @Service
 public class EmailService {
+
 
 	@Autowired
 	private GmailAuthService gmailAuthService;
@@ -41,7 +45,7 @@ public class EmailService {
 			Message message = createMessageWithEmail(email);
 			message = gmail.users().messages().send("me", message).execute();
 
-			// Guardar el correo enviado en la base de datos
+			/*ESTE ME PERMITE ALMACENAR LOS CORREOS EN LA BD
 			Email emailEntity = new Email();
 			emailEntity.setCodigo(message.getId());
 			emailEntity.setRemitente(user.getEmail());
@@ -50,7 +54,7 @@ public class EmailService {
 			emailEntity.setContenido(body);
 			emailEntity.setFechaEnviado(new java.util.Date());
 			emailEntity.setUsuarioAsignado(user);
-			emailRepository.save(emailEntity);
+			emailRepository.save(emailEntity);*/
 
 			return ResponseEntity.ok("Correo enviado con éxito.");
 		} catch (Exception e) {
@@ -64,7 +68,7 @@ public class EmailService {
 
 		MimeMessage email = new MimeMessage(session);
 		email.setFrom(new InternetAddress(from));
-		email.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(to));
+		email.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(to));
 		email.setSubject(subject);
 		email.setText(bodyText);
 		return email;
@@ -85,4 +89,25 @@ public class EmailService {
 		List<Email> emails = emailRepository.findByUsuarioAsignadoCodigo(userCode);
 		return ResponseEntity.ok(emails);
 	}
+
+	public List<Message> getInboxEmails() {
+		try {
+			Gmail gmail = gmailAuthService.getGmailService();
+
+			ListMessagesResponse listResponse = gmail.users().messages().list("me")
+					.setLabelIds(List.of
+							("INBOX"))
+					.execute();
+
+			if (listResponse.getMessages() == null) {
+				return List.of();
+			}
+			return listResponse.getMessages();
+
+		} catch (Exception e) {
+			throw new RuntimeException("Error al obtener correos de la bandeja de entrada: " + e.getMessage());
+		}
+	}
+
+
 }
