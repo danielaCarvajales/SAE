@@ -1,6 +1,7 @@
 package com.siscem.portal_sae.services;
 
 import java.security.Key;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -31,21 +32,23 @@ public class JwtService {
 	// Validates the provided JWT token
 	public boolean validateToken(String token) {
 		try {
-			Jwts.parser().verifyWith((SecretKey) getSigningKey()).build().parseSignedClaims(token);
+			Jwts.parserBuilder()
+					.setSigningKey(getSigningKey())
+					.build()
+					.parseClaimsJws(token);
 			return true;
 		}catch (JwtException | IllegalArgumentException e) {
 			return false;
 		}
 	}
 	
-	// Generates a JWT token for the given UserLoginDTO
 	public String getToken(UserLoginDTO userLoginDTO) {
-		JwtBuilder jwtBuilder = Jwts.builder().id(Integer.toString(userLoginDTO.getCodigo()))
-				.subject(userLoginDTO.getNombre()).claim("rol", userLoginDTO.getRol())
-				.claim("email", userLoginDTO.getEmail()).claim("codigoPais", userLoginDTO.getCodigoPais())
-				.claim("numeroMovil", userLoginDTO.getNumeroMovil())
-				.signWith(getSigningKey());
-		return jwtBuilder.compact();
+		return Jwts.builder()
+				.setId(UUID.randomUUID().toString())
+				.setSubject(userLoginDTO.getNombre())
+				.claim("email", userLoginDTO.getEmail())
+				.signWith(getSigningKey())
+				.compact();
 	}
 	
 }

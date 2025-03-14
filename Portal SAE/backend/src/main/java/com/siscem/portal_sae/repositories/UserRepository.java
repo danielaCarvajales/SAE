@@ -1,5 +1,6 @@
 package com.siscem.portal_sae.repositories;
 
+
 import java.util.List;
 import java.util.Optional;
 
@@ -12,5 +13,7 @@ import com.siscem.portal_sae.models.User;
 public interface UserRepository extends JpaRepository<User, Integer> {
 	Optional<User> findByNombreAndContrasena(String name, String password);
 	List<User> findByRolNombreRol(String role);
-	
+	Optional<User> findByEmail(String email);
+
+
 }
