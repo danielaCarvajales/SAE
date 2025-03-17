@@ -1,47 +1,48 @@
 package com.siscem.portal_sae.controllers;
 
-
 import com.siscem.portal_sae.dtos.email.EmailSendDTO;
-import com.siscem.portal_sae.services.AuthService;
 import com.siscem.portal_sae.services.EmailService;
-import com.siscem.portal_sae.services.TokenService;
-import io.jsonwebtoken.Claims;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
 
-@Controller
+@RestController
 @RequestMapping("/email")
 public class EmailController {
 
-	@Autowired
-	EmailService emailService;
+	private final EmailService emailService;
 
-	@Autowired
-	private TokenService tokenService;
-    @Autowired
-    private AuthService authService;
-
+	public EmailController(EmailService emailService) {
+		this.emailService = emailService;
+	}
 
 	@PostMapping("/send")
-	public ResponseEntity<String> sendEmail(
-			@RequestHeader("Authorization") String token,
-			@RequestBody EmailSendDTO emailSendDTO) {
-		try {
-			Claims claims = tokenService.getUserFromToken(token.replace("Bearer ", ""));
+	public ResponseEntity<String> sendEmail(@RequestBody EmailSendDTO emailSendDTO) {
+		boolean emailSent = emailService.sendEmail(
+				emailSendDTO.getTo(),
+				emailSendDTO.getSubject(),
+				emailSendDTO.getBody(),
+				emailSendDTO.getEmail(),
+				emailSendDTO.getPassword()
+		);
 
-			if (!"email_access".equals(claims.get("scope"))) {
-				return ResponseEntity.status(403).body("Token no válido para enviar correos");
-			}
+		if (emailSent) {
 
-			String userEmail = claims.getSubject();
-			emailService.sendEmail(emailSendDTO.getTo(), emailSendDTO.getSubject(),emailSendDTO.getBody(), userEmail, "userPassword");
 			return ResponseEntity.ok("Correo enviado correctamente");
+		} else {
+			return ResponseEntity.status(500).body("Error al enviar el correo");
 		}
-		catch (Exception e) {
-			return ResponseEntity.status(401).body("Token inválido o expirado");
-		}
+	}
+
+
+	@PostMapping("/fetch")
+	public ResponseEntity<List<String>> fetchEmails(@RequestBody Map<String, String> request) {
+		String userEmail = request.get("userEmail");
+		String userPassword = request.get("userPassword");
+
+		List<String> emails = emailService.fetchEmails(userEmail, userPassword);
+		return ResponseEntity.ok(emails);
 	}
 }

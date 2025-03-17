@@ -10,5 +10,6 @@ public class EmailSendDTO {
     private String to;
     private String subject;
     private String body;
-    private Integer userCode;
+    private String email;
+    private String password;
 }

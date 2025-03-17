@@ -21,6 +21,7 @@ import { EmailComponent } from './pages/home/email/email.component';
 import { ConsultantsComponent } from './pages/home/consultants/consultants.component';
 import { EmailConfComponent } from './pages/home/email/email-conf/email-conf.component';
 
+
 export const routes: Routes = [
   { path: 'cargando', component: LoadingScreenComponent },
   { path: 'ingreso', component: LoginComponent },

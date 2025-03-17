@@ -75,7 +75,7 @@ export class EmailConfComponent implements OnInit {
       try {
         this.loading = true;
         const response = await this.apiService.post(
-          'email/capturar',
+          'email/login',
           this.form.value
         );
         this.notificationService.success(response);
@@ -93,33 +93,5 @@ export class EmailConfComponent implements OnInit {
   private saveFormToLocalStorage() {
     localStorage.setItem('email-conf', JSON.stringify(this.form.value));
   }
-
-  // Updates available ports based on selected protocol.
-  updatePorts() {
-    const protocol = this.form.get('protocolo')?.value;
-    switch (protocol) {
-      case 'imap':
-        this.ports = [
-          { name: 'Puerto 143', value: '143' },
-          { name: 'Puerto 993', value: '993' },
-        ];
-        break;
-      case 'pop3':
-        this.ports = [
-          { name: 'Puerto 110', value: '110' },
-          { name: 'Puerto 995', value: '995' },
-        ];
-        break;
-      case 'smtp':
-        this.ports = [
-          { name: 'Puerto 25', value: '25' },
-          { name: 'Puerto 587', value: '587' },
-          { name: 'Puerto 465', value: '465' },
-        ];
-        break;
-      default:
-        this.ports = [];
-        break;
-    }
-  }
+  
 }
