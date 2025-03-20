@@ -1,35 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { UserService } from '../../../../services/user.service';
 import { ApiService } from '../../../../services/api.service';
 import { NotificationService } from '../../../../services/notification.service';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-email-conf',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatInputModule,
-    MatSelectModule,
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-  ],
+  imports: [CommonModule, MatInputModule, ReactiveFormsModule, MatButtonModule],
   templateUrl: './email-conf.component.html',
-  styleUrl: './email-conf.component.css',
+  styleUrls: ['./email-conf.component.css']
 })
 export class EmailConfComponent implements OnInit {
   ports: { name: string; value: string }[];
@@ -44,54 +28,68 @@ export class EmailConfComponent implements OnInit {
     this.ports = [];
   }
 
-  form!: FormGroup;
+  formEmail!: FormGroup;
   loading: boolean = false;
-  userEmail!: string | null;
-  userCode!: number | null;
+  email!: string | null;
+  password!: number | null;
 
   ngOnInit(): void {
     const emailConf = this.userService.getEmailConf();
     if (emailConf) {
+      console.log('Redirigiendo a /hogar/email');
       this.router.navigate(['hogar/email']);
     }
-
-    this.userEmail = this.userService.getUserEmail();
-    this.userCode = this.userService.getUserCode();
-
-    this.form = this.fb.group({
-      anfitrion: ['', [Validators.required]],
-      correo: [this.userEmail, [Validators.required, Validators.email]],
-      contrasena: ['', [Validators.required]],
-      protocolo: ['', [Validators.required]],
-      puerto: ['', [Validators.required]],
-      codigoUsuario: [this.userCode],
+  
+    this.email = this.userService.getUserEmail();
+    this.password = this.userService.getUserCode();
+  
+    console.log('Usuario Email:', this.email);
+    console.log('usuario contraseña:', this.password);
+  
+    this.formEmail = this.fb.group({
+      email: [this.email ?? '', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
     });
+  
+    console.log('Formulario creado:', this.formEmail.value);
+    console.log('Estado del formulario:', this.formEmail.valid);
   }
+  
+  
 
   // Handles form submission, sends form data to API, and redirects on success.
-  async onSubmit(event: Event): Promise<void> {
-    event.preventDefault();
-    if (this.form.valid && !this.loading) {
-      try {
-        this.loading = true;
-        const response = await this.apiService.post(
-          'email/login',
-          this.form.value
-        );
-        this.notificationService.success(response);
-        this.saveFormToLocalStorage();
-        this.router.navigate(['hogar/email']);
-      } catch (error: any) {
-        this.notificationService.warn(error.response.data);
-      } finally {
-        this.loading = false;
+  async onSubmit(): Promise<void> {    
+    
+    try {
+      this.loading = true;
+      console.log('Datos enviados al API:', this.formEmail.value);
+      const response = await this.apiService.post(
+        'email/fetch',
+        this.formEmail.value
+      );
+      console.log('Respuesta del servidor:', response);
+
+      if (response && response.length > 0 && response[0].includes('Imposible acceder')) {
+        console.log('Acceso denegado:', response[0]);
+        this.notificationService.warn(response[0]); // Muestra la notificación de error
+        return;
       }
+      this.notificationService.success(response);
+      this.saveFormToLocalStorage();
+      console.log('Redirigiendo a /hogar/email');
+      this.router.navigate(['hogar/email']);
+    } catch (error: any) {
+      console.error('Error en la API:', error);
+      this.notificationService.warn(error.response?.data || 'Error desconocido');
+    } finally {
+      this.loading = false;
     }
   }
+  
 
   // Saves form data to local storage.
   private saveFormToLocalStorage() {
-    localStorage.setItem('email-conf', JSON.stringify(this.form.value));
+    localStorage.setItem('email-conf', JSON.stringify(this.formEmail.value));
   }
-  
+
 }

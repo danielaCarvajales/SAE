@@ -11,18 +11,65 @@ export class ApiService {
 
   constructor(private userService: UserService) {}
 
+  async login(email: string, password: string): Promise<any> {
+    try {
+      console.log('Enviando solicitud de login al backend:', { email, password });
+      const response = await axios.post(`${this.API_URL}/email/fetch`, {
+        email,
+        password, // Ajusta la clave si el backend la espera como "password"
+      });
+  
+      if (response.status === 200) {
+        console.log('Login exitoso, almacenando credenciales');
+        // Almacenar credenciales encriptadas en sessionStorage
+        this.userService.storeEmailCredentials(email, password);
+        return response.data;
+      } else {
+        throw new Error('Credenciales incorrectas');
+      }
+    } catch (error) {
+      console.error('Error en login:', error);
+      throw error;
+    }
+  }
+  
+  
+
+  async getEmails(): Promise<any> {
+    const { email, password } = this.userService.getStoredCredentials();
+  
+    if (!email || !password) {
+      throw new Error('No se encontraron credenciales almacenadas');
+    }
+  
+    try {
+      console.log('Recuperando correos con:', email);
+      const response = await axios.post(`${this.API_URL}/email/fetch`, { email, password });
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener correos:', error);
+      throw error;
+    }
+  }
+  
+
   /**
    * Method to perform a GET request for a specified endpoint.
    * @param endpoint The endpoint to send the GET request to.
    */
+
   async get(endpoint: string, sendHeader: boolean = true): Promise<any> {
-    const token = this.userService.getToken();
-    const headers = sendHeader ? { Authorization: token } : {};
-    const response = await axios.get(`${this.API_URL}/${endpoint}`, {
-      headers,
-    });
-    return response.data;
+    try {
+      const token = this.userService.getToken();
+      const headers = sendHeader && token ? { Authorization: token } : {};
+      const response = await axios.get(`${this.API_URL}/${endpoint}`, { headers });
+      return response.data;
+    } catch (error) {
+      console.error(`Error en GET ${endpoint}:`, error);
+      throw error;
+    }
   }
+  
 
   /**
    * Method to perform a POST request for a specified endpoint.
@@ -122,4 +169,7 @@ export class ApiService {
       );
     }
   }
+
+  
+  
 }

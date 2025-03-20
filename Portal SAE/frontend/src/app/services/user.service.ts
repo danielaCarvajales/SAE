@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
+import * as CryptoJS from 'crypto-js';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
+
+  private encryptionKey = 'clave-segura-para-cifrado';
   constructor(private router: Router) {}
 
   /**
@@ -32,9 +35,17 @@ export class UserService {
     const token = this.getToken();
     if (!token) {
       this.router.navigate(['ingreso']);
+      return null;
     }
-    return token ? jwtDecode(token) : null;
+    try {
+      return jwtDecode(token);
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      this.router.navigate(['ingreso']);
+      return null;
+    }
   }
+  
 
   /**
    * Retrieves the user code from Token.
@@ -95,5 +106,50 @@ export class UserService {
   getUserPhoneNumber(): string | null {
     const decodedToken = this.getDecodedToken();
     return decodedToken.numeroMovil;
+  }
+
+  storeEmailCredentials(email: string, password: string): void {
+    const encryptedEmail = CryptoJS.AES.encrypt(email, this.encryptionKey).toString();
+    const encryptedPassword = CryptoJS.AES.encrypt(password, this.encryptionKey).toString();
+  
+    sessionStorage.setItem('email', encryptedEmail);
+    sessionStorage.setItem('password', encryptedPassword);
+  }
+  
+  getEmail(): string | null {
+    const encryptedEmail = sessionStorage.getItem('email');
+    return encryptedEmail ? CryptoJS.AES.decrypt(encryptedEmail, this.encryptionKey).toString(CryptoJS.enc.Utf8) : null;
+  }
+  
+  getPassword(): string | null {
+    const encryptedPassword = sessionStorage.getItem('password');
+    return encryptedPassword ? CryptoJS.AES.decrypt(encryptedPassword, this.encryptionKey).toString(CryptoJS.enc.Utf8) : null;
+  }
+
+  getStoredCredentials(): { email: string | null; password: string | null } {
+    const encryptedEmail = sessionStorage.getItem('email');
+    const encryptedPassword = sessionStorage.getItem('password');
+  
+    if (!encryptedEmail || !encryptedPassword) {
+      return { email: null, password: null };
+    }
+  
+    try {
+      const email = CryptoJS.AES.decrypt(encryptedEmail, this.encryptionKey).toString(CryptoJS.enc.Utf8);
+      const password = CryptoJS.AES.decrypt(encryptedPassword, this.encryptionKey).toString(CryptoJS.enc.Utf8);
+      return { email, password };
+    } catch (error) {
+      console.error('Error al desencriptar las credenciales:', error);
+      return { email: null, password: null };
+    }
+  }
+  
+
+  /**
+   * Limpia las credenciales del usuario al cerrar sesión.
+   */
+  clearEmailCredentials(): void {
+    sessionStorage.removeItem('email');
+    sessionStorage.removeItem('password');
   }
 }

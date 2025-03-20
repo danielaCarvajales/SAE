@@ -59,7 +59,7 @@ export class EmailComponent implements OnInit {
   row!: any;
   columns!: string[];
   selectedRows = new SelectionModel<any>(true, []);
-  tableDataSource = new MatTableDataSource<EmailDTO>([]);
+  tableDataSource = new MatTableDataSource<any>();
   eventsList!: EventDTO[];
 
   searchName: string = '';  
@@ -71,65 +71,68 @@ export class EmailComponent implements OnInit {
   selectedEventCode: number | null = null;
 
 
-  ngOnInit(): void {
+  async ngOnInit() {
     const emailConf = this.userService.getEmailConf();
 
     if (!emailConf) {
       this.router.navigate(['hogar/configuracion-email']);
+      return;
     }
 
     this.userCode = this.userService.getUserCode();
     this.userRole = this.userService.getUserRole();
-    this.fetchData();
 
-    this.tableDataSource.sortingDataAccessor = (data: any, header: string) => {
-      if (header === 'fechaRecibido') {
-        // Convierte la fecha a un formato comparable (timestamp)
-        return new Date(data.fechaRecibido).getTime();
-      }
-      return data[header];
-    };
-    this.tableDataSource.sort = this.sort;
+    try {
+      // Obtener los correos con credenciales desencriptadas
+      this.emails = await this.apiService.getEmails();
+      console.log('Correos obtenidos:', this.emails);
+
+      // Asignar los correos a la tabla
+      this.tableDataSource.data = this.emails;
+
+      // Configurar el ordenamiento de la tabla
+      this.tableDataSource.sortingDataAccessor = (data: any, header: string) => {
+        if (header === 'fechaRecibido') {
+          return new Date(data.fechaRecibido).getTime();
+        }
+        return data[header];
+      };
+
+      this.tableDataSource.sort = this.sort;
+    } catch (error) {
+      console.error('Error al cargar los correos:', error);
+    }
   }
 
    
 
   // Fetches data from API endpoints, updates table data, and handles errors.
   async fetchData(): Promise<void> {
-    this.selectedRows.clear();
-
     try {
-      const apiEndpoints = [
-        `email/listar/usuario/${this.userCode}`,
-        `evento/usuario/${this.userCode}/${this.userRole}`,
-      ];
-
-      const [emailsResponse, eventsResponse] =
-        await this.apiService.getMultiple(apiEndpoints);
-
-      if (emailsResponse && emailsResponse.length > 0) {
-        this.emails = emailsResponse.map((email: any) => email.emailAddress);  
-        this.filteredEmails = [...this.emails]; 
-        this.columns = ['seleccion', ...Object.keys(emailsResponse[0])];
-        this.tableDataSource.data = emailsResponse;
-        this.tableDataSource.sort = this.sort;
-        this.sort.active = 'fechaRecibido';
-        this.sort.direction = 'desc';
-
-        this.tableDataSource.paginator = this.paginator;
-      } else {
-        this.columns = [];
-        this.tableDataSource.data = [];
+      // 1. Recuperar credenciales desencriptadas de sessionStorage
+      const credentials = this.userService.getStoredCredentials();
+      if (!credentials) {
+        // Si no hay credenciales, redirige a la página de login o muestra error
+        this.router.navigate(['hogar/configuracion-email']);
+        return;
       }
-
-      this.eventsList = eventsResponse;
+  
+      // 2. Llamar a la API con POST enviando { userEmail, userPassword }
+      const emailsResponse = await this.apiService.post('email/fetch', {
+        userEmail: credentials.email,
+        userPassword: credentials.password,
+      });
+      
+      // 3. Manejar la respuesta (ej: mostrar en la tabla)
+      console.log('Respuesta de emails:', emailsResponse);
+      // Actualiza tu tabla con emailsResponse...
+      
     } catch (error) {
-      this.notificationService.warn(
-        'Fallo al obtener información de API! Error: ' + error
-      );
+      console.error('Fallo al obtener información de API:', error);
     }
   }
-
+  
+  
   // Applies a filter to the table data based on user input.
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;

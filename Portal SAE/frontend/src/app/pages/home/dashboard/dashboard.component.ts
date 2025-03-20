@@ -101,10 +101,10 @@ export class DashboardComponent implements OnInit {
     this.generateWeekDays(this.selectedDate);
     this.userCode = this.userService.getUserCode();
     this.userRole = this.userService.getUserRole();
-    this.loadingActivity('evento');
+   /*  this.loadingActivity('evento');
     console.log('calendarData:', this.calendarData);
     console.log('daysOfWeek:', this.daysOfWeek);
-    console.log('hours:', this.hours);
+    console.log('hours:', this.hours); */
   }
 
 

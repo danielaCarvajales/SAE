@@ -20,15 +20,15 @@ public class EmailService {
         try {
             // Configurar JavaMailSender con credenciales dinámicas
             JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-            mailSender.setHost("smtp.hostinger.com"); // Cambia según tu proveedor SMTP
-            mailSender.setPort(465); // Puerto seguro de Hostinger
+            mailSender.setHost("smtp.hostinger.com");
+            mailSender.setPort(465);
             mailSender.setUsername(userEmail);
             mailSender.setPassword(userPassword);
 
             Properties props = mailSender.getJavaMailProperties();
             props.put("mail.smtp.auth", "true");
             props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.ssl.enable", "true"); // Importante para SMTP seguro
+            props.put("mail.smtp.ssl.enable", "true");
 
             // Crear el mensaje
             MimeMessage message = mailSender.createMimeMessage();
@@ -48,23 +48,22 @@ public class EmailService {
         }
     }
 
-    public List<String> fetchEmails(String userEmail, String userPassword) {
+    public List<String> fetchEmails(String email, String password) {
         List<String> emailList = new ArrayList<>();
 
-        String host = "imap.hostinger.com"; // Cambia a IMAP
+        String host = "imap.hostinger.com";
 
         Properties props = new Properties();
-        props.put("mail.store.protocol", "imaps"); // IMAP seguro
+        props.put("mail.store.protocol", "imaps");
         props.put("mail.imap.host", host);
-        props.put("mail.imap.port", "993"); // Puerto IMAP seguro
+        props.put("mail.imap.port", "993");
         props.put("mail.imap.ssl.enable", "true");
-        props.put("mail.debug", "true"); // Debug para ver errores
-
+        props.put("mail.debug", "true");
         try {
             // Conectar a la sesión
             Session session = Session.getInstance(props);
             Store store = session.getStore("imaps");
-            store.connect(host, userEmail, userPassword);
+            store.connect(host, email, password);
 
             // Abrir la bandeja de entrada
             Folder inbox = store.getFolder("INBOX");
@@ -84,8 +83,11 @@ public class EmailService {
 
             inbox.close(false);
             store.close();
+        } catch (AuthenticationFailedException authEx) {
+
+            return List.of(" Imposible acceder: Credenciales incorrectas.");
         } catch (Exception e) {
-            e.printStackTrace();
+            return List.of(" Error al acceder al servidor de correo. Intente más tarde.");
         }
 
         return emailList;
