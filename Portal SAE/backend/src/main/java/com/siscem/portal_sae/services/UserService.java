@@ -83,13 +83,16 @@ public class UserService {
 		Optional<User> userOptional = userRepository.findByNombreAndContrasena(username, password);
 		UserLoginDTO userLoginDTO = userOptional.map(user -> modelMapper.map(user, UserLoginDTO.class)).orElse(null);
 		if (userLoginDTO != null) {
+			String token = generateJWT(userLoginDTO);
+			System.out.println("Token generado: " + token);
 			return ResponseEntity.ok(generateJWT(userLoginDTO));
 		} else {
 			return ResponseEntity.status(404).body("Usuario no encontrado");
 		}
 	}
 
-	
+
+
 	/**
 	 * Generates a JWT token for the given user login details.
 	 * 
@@ -97,7 +100,7 @@ public class UserService {
 	 * @return String The JWT token generated for the user.
 	 */
 	public String generateJWT(UserLoginDTO userLoginDTO) {
-	    return jwtService.getToken(userLoginDTO);
+		return jwtService.getToken(userLoginDTO);
 	}
 
 }

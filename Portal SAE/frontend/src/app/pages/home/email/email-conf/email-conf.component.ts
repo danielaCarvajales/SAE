@@ -34,11 +34,13 @@ export class EmailConfComponent implements OnInit {
   password!: number | null;
 
   ngOnInit(): void {
-    const emailConf = this.userService.getEmailConf();
-    if (emailConf) {
-      console.log('Redirigiendo a /hogar/email');
-      this.router.navigate(['hogar/email']);
-    }
+    const emailConf = localStorage.getItem('email-conf');
+  if (emailConf) {
+    console.log('Redirigiendo a /hogar/email');
+    this.router.navigate(['hogar/email']);
+  } else {
+    console.log('No hay configuración de email en localStorage');
+  }
   
     this.email = this.userService.getUserEmail();
     this.password = this.userService.getUserCode();
@@ -58,23 +60,32 @@ export class EmailConfComponent implements OnInit {
   
 
   // Handles form submission, sends form data to API, and redirects on success.
-  async onSubmit(): Promise<void> {    
-    
+  async onSubmit(): Promise<void> {
+    console.log('Intentando enviar formulario...');
+  
+    if (!this.formEmail.valid) {
+      console.log('Formulario no válido:', this.formEmail.errors);
+      return;
+    }
+  
+    if (this.loading) {
+      console.log('Ya se está procesando una petición...');
+      return;
+    }
+  
     try {
       this.loading = true;
       console.log('Datos enviados al API:', this.formEmail.value);
-      const response = await this.apiService.post(
-        'email/fetch',
-        this.formEmail.value
-      );
+  
+      const response = await this.apiService.post('email/fetch', this.formEmail.value);
       console.log('Respuesta del servidor:', response);
-
+  
       if (response && response.length > 0 && response[0].includes('Imposible acceder')) {
         console.log('Acceso denegado:', response[0]);
-        this.notificationService.warn(response[0]); // Muestra la notificación de error
+        this.notificationService.warn(response[0]); 
         return;
       }
-      this.notificationService.success(response);
+      this.notificationService.success('Acceso concedido');
       this.saveFormToLocalStorage();
       console.log('Redirigiendo a /hogar/email');
       this.router.navigate(['hogar/email']);
@@ -86,8 +97,9 @@ export class EmailConfComponent implements OnInit {
     }
   }
   
+  
 
-  // Saves form data to local storage.
+
   private saveFormToLocalStorage() {
     localStorage.setItem('email-conf', JSON.stringify(this.formEmail.value));
   }

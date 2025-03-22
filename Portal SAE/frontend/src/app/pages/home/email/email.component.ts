@@ -1,4 +1,5 @@
-import { Component, input, OnInit, ViewChild } from '@angular/core';
+import { EmailDTO } from './../../../interfaces/email/email.dto';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from '../../../services/user.service';
 import { ApiService } from '../../../services/api.service';
@@ -8,7 +9,6 @@ import { NotificationService } from '../../../services/notification.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { EmailDTO } from '../../../interfaces/email/email.dto';
 import { FormEmailsComponent } from '../../../forms/form-emails/form-emails.component';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,8 +18,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { EventDTO } from '../../../interfaces/event/event.dto';
-import { FormsModule } from '@angular/forms';
-
 
 @Component({
   selector: 'app-email',
@@ -36,7 +34,6 @@ import { FormsModule } from '@angular/forms';
     MatSelectModule,
     MatIconModule,
     CommonModule,
-    FormsModule
   ],
   templateUrl: './email.component.html',
   styleUrl: './email.component.css',
@@ -44,95 +41,114 @@ import { FormsModule } from '@angular/forms';
 export class EmailComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-
+  email!: string;
+  password!: string;
   constructor(
     private userService: UserService,
     private apiService: ApiService,
     private notificationService: NotificationService,
     private router: Router,
     public dialog: MatDialog
-  ) { }
+  ) {
+    this.email = "";
+    this.password = "";
+  }
 
-  
   userCode!: number | null;
   userRole!: string | null;
+
   row!: any;
   columns!: string[];
   selectedRows = new SelectionModel<any>(true, []);
-  tableDataSource = new MatTableDataSource<any>();
+  tableDataSource = new MatTableDataSource<EmailDTO>([]);
   eventsList!: EventDTO[];
 
-  searchName: string = '';  
-  emails: string[] = [];    
-  filteredEmails: string[] = []; 
+  selectedEventCode: number | null = null;
   isLoading: boolean = false;
   isApiBusy: boolean = false;
 
-  selectedEventCode: number | null = null;
-
-
-  async ngOnInit() {
+  ngOnInit(): void {
     const emailConf = this.userService.getEmailConf();
+    console.log("Datos obtenidos de localStorage:", emailConf)
 
-    if (!emailConf) {
-      this.router.navigate(['hogar/configuracion-email']);
-      return;
+    if (emailConf) {
+      const parsedConfig = JSON.parse(emailConf)
+      console.log("Email:", parsedConfig.email);
+      console.log("Password:", parsedConfig.password);
+      this.email = parsedConfig.email;
+      this.password = parsedConfig.password;
+      console.log("Email asignado:", this.email)
+      console.log("Contraseña asignada:", this.password)
+    } else {
+      console.log("No se encontró información de email en localStorage.")
     }
 
-    this.userCode = this.userService.getUserCode();
-    this.userRole = this.userService.getUserRole();
+    this.userCode = this.userService.getUserCode()
+    this.userRole = this.userService.getUserRole()
+    this.fetchData()
 
-    try {
-      // Obtener los correos con credenciales desencriptadas
-      this.emails = await this.apiService.getEmails();
-      console.log('Correos obtenidos:', this.emails);
-
-      // Asignar los correos a la tabla
-      this.tableDataSource.data = this.emails;
-
-      // Configurar el ordenamiento de la tabla
-      this.tableDataSource.sortingDataAccessor = (data: any, header: string) => {
-        if (header === 'fechaRecibido') {
-          return new Date(data.fechaRecibido).getTime();
-        }
-        return data[header];
-      };
-
-      this.tableDataSource.sort = this.sort;
-    } catch (error) {
-      console.error('Error al cargar los correos:', error);
-    }
   }
 
-   
 
   // Fetches data from API endpoints, updates table data, and handles errors.
   async fetchData(): Promise<void> {
+    this.selectedRows.clear()
     try {
-      // 1. Recuperar credenciales desencriptadas de sessionStorage
-      const credentials = this.userService.getStoredCredentials();
-      if (!credentials) {
-        // Si no hay credenciales, redirige a la página de login o muestra error
-        this.router.navigate(['hogar/configuracion-email']);
-        return;
+      const apiEndpoint = "email/fetch"
+      const requestData = {
+        email: this.email,
+        password: this.password,
       }
-  
-      // 2. Llamar a la API con POST enviando { userEmail, userPassword }
-      const emailsResponse = await this.apiService.post('email/fetch', {
-        userEmail: credentials.email,
-        userPassword: credentials.password,
-      });
-      
-      // 3. Manejar la respuesta (ej: mostrar en la tabla)
-      console.log('Respuesta de emails:', emailsResponse);
-      // Actualiza tu tabla con emailsResponse...
-      
+
+      const emailsResponse = await this.apiService.post(apiEndpoint, requestData)
+      console.log("Enviando solicitud con:", requestData)
+      console.log("Respuesta del servidor:", emailsResponse)
+
+      if (emailsResponse && emailsResponse.length > 0) {
+        const formattedEmails = emailsResponse.map((emailString: string) => {
+          const remitenteMatch = emailString.match(/De: ([^<]+)<([^>]+)>/)
+          const remitente = remitenteMatch
+            ? { nombre: remitenteMatch[1].trim(), email: remitenteMatch[2].trim() }
+            : { nombre: "Desconocido", email: "desconocido@email.com" }
+
+          const destinatarioMatch = emailString.match(/Destinatario:\s([^-\n]+)/)
+          const destinatario = destinatarioMatch ? destinatarioMatch[1].trim() : "No especificado"
+          const asuntoMatch = emailString.match(/Asunto: ([^-]+)/)
+          const asunto = asuntoMatch ? asuntoMatch[1].trim() : "Sin asunto"
+          const contenidoMatch = emailString.match(/Asunto: [^\n]*\n([\s\S]*?)(?=De:|Fecha de recibido:|$)/)
+          const contenido = contenidoMatch ? contenidoMatch[1].trim() : "No hay contenido disponible"
+          const fechaMatch = emailString.match(/Fecha de recibido: (\d{4}-\d{2}-\d{2})/)
+          const fechaRecibido = fechaMatch ? fechaMatch[1] : "Fecha desconocida"
+
+          return {
+            contenido,
+            remitente: remitente.nombre + " <" + remitente.email + ">",
+            destinatario,
+            asunto,
+            contenidoCompleto: emailString,
+            fechaRecibido,
+          }
+        })
+
+        console.log("Correos formateados:", formattedEmails)
+
+        this.columns = [ "contenido", "remitente", "destinatario", "asunto", "fechaRecibido"]
+        this.tableDataSource.data = formattedEmails
+        this.tableDataSource.sort = this.sort
+        this.tableDataSource.paginator = this.paginator
+        this.eventsList = formattedEmails
+      } else {
+        console.log("No se encontraron correos")
+        this.columns = []
+        this.tableDataSource.data = []
+        this.eventsList = []
+        this.notificationService.warn("No se encontraron correos electrónicos.")
+      }
     } catch (error) {
-      console.error('Fallo al obtener información de API:', error);
+      this.notificationService.warn("Fallo al obtener información de API! Error: " + error)
     }
   }
-  
-  
+
   // Applies a filter to the table data based on user input.
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -221,43 +237,11 @@ export class EmailComponent implements OnInit {
       this.isLoading = this.isApiBusy = true;
       const response = await this.apiService.post('email/capturar', emailConf);
       this.notificationService.success(response);
-
-      const apiEndpoints = [`email/listar/usuario/${this.userCode}`];
-      const emailsResponse = await this.apiService.getMultiple(apiEndpoints)
-
-      if (emailsResponse && emailsResponse.length > 0) {
-        // Paso 3: Actualizar los datos en la tabla
-        this.tableDataSource.data = emailsResponse;
-        this.tableDataSource.paginator = this.paginator;
-        this.tableDataSource.sort = this.sort;
-        this.sort.active = 'fechaRecibido';
-        this.sort.direction = 'desc';
-      } else {
-        this.tableDataSource.data = [];
-      }
-      
     } catch (error: any) {
-      this.notificationService.warn(error.response.data );
+      this.notificationService.warn(error.response.data);
     } finally {
       this.isLoading = this.isApiBusy = false;
       this.fetchData();
     }
   }
-
-  
-
-  getNameFromEmail(remitente: string): string {
-    const match = remitente.match(/^\[?([^<]*)/);
-    return match ? match[1].trim() : remitente;
-  }
-
-  getEmailsFromString(input: string): string[] {
-    const regex = /[\w._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-    return input.match(regex) || [];
-  }
-  
-  
-  
-
-  
 }

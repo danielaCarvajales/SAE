@@ -1,7 +1,6 @@
 package com.siscem.portal_sae.services;
 
 import java.security.Key;
-import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -25,30 +24,28 @@ public class JwtService {
 
 	// Value of the secret key used for JWT
 	private Key getSigningKey() {
-	  byte[] keyBytes = Decoders.BASE64.decode(secret);
-	  return Keys.hmacShaKeyFor(keyBytes);
+		byte[] keyBytes = Decoders.BASE64.decode(secret);
+		return Keys.hmacShaKeyFor(keyBytes);
 	}
-	
+
 	// Validates the provided JWT token
 	public boolean validateToken(String token) {
 		try {
-			Jwts.parserBuilder()
-					.setSigningKey(getSigningKey())
-					.build()
-					.parseClaimsJws(token);
+			Jwts.parser().verifyWith((SecretKey) getSigningKey()).build().parseSignedClaims(token);
 			return true;
 		}catch (JwtException | IllegalArgumentException e) {
 			return false;
 		}
 	}
-	
+
+	// Generates a JWT token for the given UserLoginDTO
 	public String getToken(UserLoginDTO userLoginDTO) {
-		return Jwts.builder()
-				.setId(UUID.randomUUID().toString())
-				.setSubject(userLoginDTO.getNombre())
-				.claim("email", userLoginDTO.getEmail())
-				.signWith(getSigningKey())
-				.compact();
+		JwtBuilder jwtBuilder = Jwts.builder().
+				id(Integer.toString(userLoginDTO.getCodigo()))
+				.subject(userLoginDTO.getNombre()).claim("rol", userLoginDTO.getRol())
+				.claim("email", userLoginDTO.getEmail()).claim("codigoPais", userLoginDTO.getCodigoPais())
+				.claim("numeroMovil", userLoginDTO.getNumeroMovil())
+				.signWith(getSigningKey());
+		return jwtBuilder.compact();
 	}
-	
 }

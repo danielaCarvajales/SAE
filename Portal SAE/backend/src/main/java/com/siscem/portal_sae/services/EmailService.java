@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.text.SimpleDateFormat;
+
 
 @Service
 public class EmailService {
@@ -77,8 +79,15 @@ public class EmailService {
             for (int i = messages.length - 1; i >= 0; i--) {
                 Message message = messages[i];
                 String contents = Jsoup.parse(message.getContent().toString()).text();
-
-                emailList.add("De: " + message.getFrom()[0] + " - Asunto: " + message.getSubject() + " - Contenido: " + contents);
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                String formattedDate = message.getReceivedDate() != null ? formatter.format(message.getReceivedDate()) : "No disponible";
+                Address[] recipients = message.getRecipients(Message.RecipientType.TO);
+                String toEmails = (recipients != null && recipients.length > 0) ? recipients[0].toString() : "No disponible";
+                emailList.add("De: " + message.getFrom()[0] +
+                        "- Destinatario: " + toEmails+
+                        " - Asunto: " + message.getSubject() +
+                        " - Contenido: " + contents
+                        + "- Fecha de recibido: " + formattedDate );
             }
 
             inbox.close(false);
