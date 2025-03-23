@@ -6,7 +6,6 @@ import lombok.Data;
 
 @Data
 public class EmailDetailsDTO {
-	private String anfitrion;
 	private String correo;
 	private String contrasena;
 	private String protocolo;

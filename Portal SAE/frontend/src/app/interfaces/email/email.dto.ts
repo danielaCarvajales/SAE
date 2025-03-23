@@ -7,4 +7,5 @@ export interface EmailDTO {
   fechaEnviado: string;
   fechaRecibido: string;
   eventoAsignado: number;
+  adjunto : File;
 }

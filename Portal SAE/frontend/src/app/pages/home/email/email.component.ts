@@ -18,7 +18,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { EventDTO } from '../../../interfaces/event/event.dto';
-
+import { SeeEmailsComponent } from './see-emails/see-emails.component';
 @Component({
   selector: 'app-email',
   standalone: true,
@@ -69,6 +69,10 @@ export class EmailComponent implements OnInit {
 
   ngOnInit(): void {
     const emailConf = this.userService.getEmailConf();
+    if (!emailConf) {
+      this.router.navigate(['hogar/configuracion-email']);
+    }
+
     console.log("Datos obtenidos de localStorage:", emailConf)
 
     if (emailConf) {
@@ -89,8 +93,6 @@ export class EmailComponent implements OnInit {
 
   }
 
-
-  // Fetches data from API endpoints, updates table data, and handles errors.
   async fetchData(): Promise<void> {
     this.selectedRows.clear()
     try {
@@ -115,11 +117,15 @@ export class EmailComponent implements OnInit {
           const destinatario = destinatarioMatch ? destinatarioMatch[1].trim() : "No especificado"
           const asuntoMatch = emailString.match(/Asunto: ([^-]+)/)
           const asunto = asuntoMatch ? asuntoMatch[1].trim() : "Sin asunto"
-          const contenidoMatch = emailString.match(/Asunto: [^\n]*\n([\s\S]*?)(?=De:|Fecha de recibido:|$)/)
-          const contenido = contenidoMatch ? contenidoMatch[1].trim() : "No hay contenido disponible"
+          const contenidoMatch = emailString.match(/Contenido:\s([\s\S]*?)(?=De:|Fecha de recibido:|$)/);
+          const contenido = contenidoMatch && contenidoMatch[1].trim() ? contenidoMatch[1].trim() : "-";
           const fechaMatch = emailString.match(/Fecha de recibido: (\d{4}-\d{2}-\d{2})/)
           const fechaRecibido = fechaMatch ? fechaMatch[1] : "Fecha desconocida"
 
+          const adjuntoMatch = emailString.match(/Adjunto:\s(.+)/);
+          const adjunto = adjuntoMatch ? adjuntoMatch[1].trim() : "Sin adjunto";
+
+          // Formatear la salida final
           return {
             contenido,
             remitente: remitente.nombre + " <" + remitente.email + ">",
@@ -127,12 +133,13 @@ export class EmailComponent implements OnInit {
             asunto,
             contenidoCompleto: emailString,
             fechaRecibido,
+            adjunto,
           }
         })
 
         console.log("Correos formateados:", formattedEmails)
 
-        this.columns = [ "contenido", "remitente", "destinatario", "asunto", "fechaRecibido"]
+        this.columns = ["contenido", "remitente", "destinatario", "asunto", "fechaRecibido"]
         this.tableDataSource.data = formattedEmails
         this.tableDataSource.sort = this.sort
         this.tableDataSource.paginator = this.paginator
@@ -149,15 +156,6 @@ export class EmailComponent implements OnInit {
     }
   }
 
-  // Applies a filter to the table data based on user input.
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.tableDataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.tableDataSource.paginator) {
-      this.tableDataSource.paginator.firstPage();
-    }
-  }
 
   // Handles row click event and toggles selection of rows.
   onRowClick(row: EmailDTO, event: Event): void {
@@ -170,24 +168,33 @@ export class EmailComponent implements OnInit {
     }
   }
 
-  // Opens a dialog to display email content.
-  openDialogWithData(emailContent: string) {
-    this.dialog.open(FormEmailsComponent, {
-      autoFocus: true,
-      width: '80%',
-      height: '80%',
-      data: {
-        content: emailContent,
-      },
+  
+  openEmailDetails(emailData: any) {                                     
+    const dialogRef = this.dialog.open(SeeEmailsComponent, {
+      width: '60%',
+      height: '60%',
+      data: emailData // Asegúrate de pasar el objeto completo del correo
+    });
+  
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('El modal se cerró');
     });
   }
 
-  // Handles event selection change from a dropdown.
+  formatEmailContent(content: string): string {
+    let formatted = content.replace(/\n/g, '<br>');
+    formatted = formatted.replace(
+      /(https?:\/\/[^\s]+)/g,
+      '<a href="$1" target="_blank">$1</a>'
+    );
+
+    return formatted;
+  }
+
   onEventSelectionChange(event: MatSelectChange): void {
     this.selectedEventCode = event.value;
   }
 
-  // Toggles selection of all rows in the table.
   toggleSelectAll(checked: boolean): void {
     if (checked) {
       this.tableDataSource.data.forEach(row => this.selectedRows.select(row));
@@ -196,14 +203,12 @@ export class EmailComponent implements OnInit {
     }
   }
 
-  // Checks if all rows in the table are selected.
   areAllRowsSelected(): boolean {
     const numSelected = this.selectedRows.selected.length;
     const numRows = this.tableDataSource.data.length;
     return numSelected === numRows;
   }
 
-  // Edits selected events by updating associated email codes.
   async editEvent(): Promise<void> {
     const emailCodesArray: string[] = [];
     this.selectedRows.selected.forEach((row: EmailDTO) => {
@@ -229,7 +234,6 @@ export class EmailComponent implements OnInit {
     }
   }
 
-  // Updates emails based on user preferences.
   async updateEmails(): Promise<void> {
     const emailConfString = this.userService.getEmailConf();
     const emailConf = emailConfString ? JSON.parse(emailConfString) : null;

@@ -59,7 +59,38 @@ export class HomeComponent implements OnInit {
         isLocalIcon: false,
       });
     }
-  }
+  } 
+
+    /* ngOnInit(): void {
+      this.userCode = this.userService.getUserCode();
+      this.userRole = this.userService.getUserRole();
+      this.userName = this.userService.getUserName();
+      this.isUserBusinessman = this.userService.isUserBusinessman();
+    
+      // Redirigir siempre al Dashboard al iniciar sesión
+      this.router.navigate(['/hogar']);
+    
+      // Clonar `navLinks` y actualizar el enlace de correo electrónico según la sesión
+      this.sideNavLinks = navLinks.map(link => {
+        if (link.label === 'Correo Electrónico') {
+          return {
+            ...link,
+            url: this.userName ? '/hogar/email' : '/hogar/email-conf',
+          };
+        }
+        return link;
+      });
+    
+      if (this.isUserBusinessman) {
+        this.sideNavLinks.push({
+          label: 'Consultores',
+          url: '/hogar/consultores',
+          icon: 'badge',
+          isLocalIcon: false,
+        });
+      }
+    } */
+    
 
   logout(): void {
     localStorage.clear();

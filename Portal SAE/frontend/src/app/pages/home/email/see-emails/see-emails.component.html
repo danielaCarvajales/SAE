@@ -1,0 +1,24 @@
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="card p-4 shadow-lg text-center" style="max-width: 500px;">
+    <div class="mb-3">
+      <!--         <img src="assets/logo.png" alt="Logo" class="img-fluid" width="150">
+ -->
+    </div>
+    <h3 class="fw-bold">Detalles del Correo</h3>
+    <div class="text-left">
+      <p><strong>Remitente:</strong> {{ data.remitente }}</p>
+      <p><strong>Destinatario:</strong> {{ data.destinatario }}</p>
+      <p><strong>Asunto:</strong> {{ data.asunto }}</p>
+      <p><strong>Contenido:</strong> {{ data.contenido }}</p>
+      <p><strong>Fecha de recibido:</strong> {{ data.fechaRecibido }}</p>
+      
+      <div *ngIf="data.adjunto && data.adjunto !== 'Sin adjunto'">
+        <p><strong>Archivo adjunto:</strong> {{ data.adjunto }}</p>
+        <a href="{{ data.adjunto }}" download>Descargar</a>
+      </div>
+    </div>
+    <div class="mt-4">
+      <button class="btn btn-primary w-100" mat-button mat-dialog-close>Cerrar</button>
+    </div>
+  </div>
+</div>
