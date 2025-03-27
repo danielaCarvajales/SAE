@@ -80,7 +80,7 @@ export class DashboardComponent implements OnInit {
     });
     this.colors = [
       'rgb(8, 21, 82)', 
-      'rgb(33, 97, 150)', /* */
+      'rgb(33, 97, 150)', 
           'rgb(53, 107, 75)',
       
      
@@ -101,10 +101,7 @@ export class DashboardComponent implements OnInit {
     this.generateWeekDays(this.selectedDate);
     this.userCode = this.userService.getUserCode();
     this.userRole = this.userService.getUserRole();
-   /*  this.loadingActivity('evento');
-    console.log('calendarData:', this.calendarData);
-    console.log('daysOfWeek:', this.daysOfWeek);
-    console.log('hours:', this.hours); */
+
   }
 
 

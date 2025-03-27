@@ -9,7 +9,6 @@ import { NotificationService } from '../../../services/notification.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { FormEmailsComponent } from '../../../forms/form-emails/form-emails.component';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -19,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { EventDTO } from '../../../interfaces/event/event.dto';
 import { SeeEmailsComponent } from './see-emails/see-emails.component';
+import { SendEmailsComponent } from './send-emails/send-emails.component';
 @Component({
   selector: 'app-email',
   standalone: true,
@@ -122,8 +122,11 @@ export class EmailComponent implements OnInit {
           const fechaMatch = emailString.match(/Fecha de recibido: (\d{4}-\d{2}-\d{2})/)
           const fechaRecibido = fechaMatch ? fechaMatch[1] : "Fecha desconocida"
 
-          const adjuntoMatch = emailString.match(/Adjunto:\s(.+)/);
-          const adjunto = adjuntoMatch ? adjuntoMatch[1].trim() : "Sin adjunto";
+          const adjuntoMatch = emailString.match(/Adjunto:\s([^-\n]+)/)
+          const adjunto = adjuntoMatch ? adjuntoMatch[1].trim() : "Sin adjunto"
+          const adjuntoIdMatch = emailString.match(/AdjuntoId:\s([a-f0-9-]+)/)
+          const adjuntoId = adjuntoIdMatch ? adjuntoIdMatch[1].trim() : null
+
 
           // Formatear la salida final
           return {
@@ -134,6 +137,7 @@ export class EmailComponent implements OnInit {
             contenidoCompleto: emailString,
             fechaRecibido,
             adjunto,
+            adjuntoId,
           }
         })
 
@@ -157,7 +161,6 @@ export class EmailComponent implements OnInit {
   }
 
 
-  // Handles row click event and toggles selection of rows.
   onRowClick(row: EmailDTO, event: Event): void {
     event.stopPropagation();
     const isSelected = this.selectedRows.isSelected(row);
@@ -168,14 +171,31 @@ export class EmailComponent implements OnInit {
     }
   }
 
-  
-  openEmailDetails(emailData: any) {                                     
+
+  openEmailDetails(emailData: any) {
     const dialogRef = this.dialog.open(SeeEmailsComponent, {
-      width: '60%',
-      height: '60%',
-      data: emailData // Asegúrate de pasar el objeto completo del correo
+      width: '600px',
+      maxHeight: '60vh',
+      hasBackdrop: false,
+      panelClass: 'transparent-dialog',
+      data: emailData
     });
-  
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('El modal se cerró');
+    });
+  }
+
+  openEmailForm(): void {
+    const dialogRef = this.dialog.open(SendEmailsComponent, {
+      width: '600px',
+      maxHeight: '60vh',
+      position: { bottom: '40px', right: '40px' },
+      hasBackdrop: true,
+      panelClass: 'custom-dialog-container',
+      backdropClass: 'transparent-backdrop', 
+    });
+
     dialogRef.afterClosed().subscribe(result => {
       console.log('El modal se cerró');
     });

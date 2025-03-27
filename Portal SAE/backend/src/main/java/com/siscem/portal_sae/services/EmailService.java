@@ -4,20 +4,34 @@ package com.siscem.portal_sae.services;
 import jakarta.mail.*;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
+import org.springframework.beans.factory.annotation.Value;
 import org.jsoup.Jsoup;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.text.SimpleDateFormat;
+import java.util.UUID;
 
 
 @Service
 public class EmailService {
+    @Value("${attachment.storage.path:/tmp/attachments}")
+    private String attachmentStoragePath;
+
+    private void createStorageDirectoryIfNotExists() {
+        File directory = new File(attachmentStoragePath);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+    }
 
     public boolean sendEmail(String to, String subject, String body, String userEmail, String userPassword, List<MultipartFile> attachments) {
         try {
@@ -65,6 +79,7 @@ public class EmailService {
 
     public List<String> fetchEmails(String email, String password) {
         List<String> emailList = new ArrayList<>();
+        createStorageDirectoryIfNotExists();
 
         String host = "imap.hostinger.com";
 
@@ -74,6 +89,9 @@ public class EmailService {
         props.put("mail.imap.port", "993");
         props.put("mail.imap.ssl.enable", "true");
         props.put("mail.debug", "true");
+        props.put("mail.imap.connectiontimeout", "5000");
+        props.put("mail.imap.timeout", "10000");
+        props.put("mail.imap.writetimeout", "5000");
         try {
             // Conectar a la sesión
             Session session = Session.getInstance(props);
@@ -105,7 +123,15 @@ public class EmailService {
                         BodyPart bodyPart = multipart.getBodyPart(j);
                         if (Part.ATTACHMENT.equalsIgnoreCase(bodyPart.getDisposition())) {
                             String fileName = bodyPart.getFileName();
-                            emailDetails.append(" - Adjunto: ").append(fileName);
+
+                            // Generar un ID único para el archivo
+                            String uniqueId = UUID.randomUUID().toString();
+                            String storedFileName = uniqueId + "_" + fileName;
+                            String filePath = attachmentStoragePath + File.separator + storedFileName;
+                            saveAttachment(bodyPart, filePath);
+
+                                emailDetails.append(" - Adjunto: ").append(fileName)
+                                    .append(" - AdjuntoId: ").append(uniqueId);
                         }
                     }
                 }
@@ -121,6 +147,18 @@ public class EmailService {
         }
 
         return emailList;
+    }
+
+    private void saveAttachment(BodyPart bodyPart, String filePath) throws Exception {
+        try (InputStream is = bodyPart.getInputStream();
+             FileOutputStream fos = new FileOutputStream(filePath)) {
+
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1) {
+                fos.write(buffer, 0, bytesRead);
+            }
+        }
     }
 
     private static String getTextFromMessage(Message message) throws Exception {

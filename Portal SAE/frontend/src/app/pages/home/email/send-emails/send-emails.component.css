@@ -1,0 +1,79 @@
+.custom-dialog-container .mat-dialog-container {
+    max-height: 50vh !important; /* Limita la altura al 50% de la pantalla */
+    width: 400px !important; /* Asegura que no cambie el ancho */
+    overflow-y: auto; /* Habilita el scroll si el contenido es largo */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centra el contenido */
+  }
+  
+  /* Estilos generales */
+.card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Estilos para el header */
+.bg-dark {
+  background-color: #212529 !important;
+}
+
+/* Estilos para los campos de entrada */
+input.form-control,
+textarea.form-control {
+  box-shadow: none;
+}
+
+input.form-control:focus,
+textarea.form-control:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+/* Estilos para los bordes inferiores */
+.border-bottom {
+  border-bottom: 1px solid #e9ecef !important;
+}
+
+/* Estilos para el botón de enviar */
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+/* Estilos para el spinner */
+.spinner-border {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Estilos para las alertas */
+.alert {
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* Estilos para el área de archivos adjuntos */
+.btn-outline-primary {
+  color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-link {
+  text-decoration: none;
+}
+
+
+  

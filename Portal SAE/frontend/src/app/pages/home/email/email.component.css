@@ -94,5 +94,28 @@
 }
 
 .mat-mdc-row.selected-row {
-  background-color: #eac813;
+  background-color: #a0b7ca;
+}
+
+.transparent-dialog .mat-dialog-container {
+  background: transparent !important; 
+  border: none !important;
+  padding: 0 !important; 
+}
+.custom-dialog-container .mat-dialog-container {
+  max-height: 50vh !important;
+  width: 400px !important; 
+  overflow-y: auto; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+}
+
+.transparent-backdrop {
+  background: transparent !important; 
+}
+
+.custom-dialog-container {
+  box-shadow: none !important; 
+  background-color: white; 
 }

@@ -1,10 +1,13 @@
 <div class="flex m-3 main-container" style="display: flex; flex-direction: column; height: 100%;">
-  <!-- Contenedor del botón con fondo -->
   <div class="content-container bg-secondary" 
        style="display: flex; justify-content: flex-end; align-items: center; padding: 10px;">
     <button mat-fab extended color="primary" (click)="updateEmails()" [disabled]="isLoading || isApiBusy">
       <mat-icon>updateEmails</mat-icon>
       <span>Actualizar Correos</span>
+    </button>
+    <button class="d-flex ms-2" mat-fab extended color="primary" (click)="openEmailForm()">
+      <i class="fa-solid fa-paper-plane me-2" ></i>
+      <span>Enviar Correos </span>
     </button>
   </div>
 
