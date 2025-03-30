@@ -19,6 +19,8 @@ import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { EventDTO } from '../../../interfaces/event/event.dto';
 import { SeeEmailsComponent } from './see-emails/see-emails.component';
 import { SendEmailsComponent } from './send-emails/send-emails.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 @Component({
   selector: 'app-email',
   standalone: true,
@@ -34,6 +36,8 @@ import { SendEmailsComponent } from './send-emails/send-emails.component';
     MatSelectModule,
     MatIconModule,
     CommonModule,
+    MatProgressSpinnerModule, 
+
   ],
   templateUrl: './email.component.html',
   styleUrl: './email.component.css',
@@ -73,18 +77,11 @@ export class EmailComponent implements OnInit {
       this.router.navigate(['hogar/configuracion-email']);
     }
 
-    console.log("Datos obtenidos de localStorage:", emailConf)
-
     if (emailConf) {
       const parsedConfig = JSON.parse(emailConf)
-      console.log("Email:", parsedConfig.email);
-      console.log("Password:", parsedConfig.password);
       this.email = parsedConfig.email;
       this.password = parsedConfig.password;
-      console.log("Email asignado:", this.email)
-      console.log("Contraseña asignada:", this.password)
     } else {
-      console.log("No se encontró información de email en localStorage.")
     }
 
     this.userCode = this.userService.getUserCode()
@@ -94,6 +91,7 @@ export class EmailComponent implements OnInit {
   }
 
   async fetchData(): Promise<void> {
+    this.isLoading = true;
     this.selectedRows.clear()
     try {
       const apiEndpoint = "email/fetch"
@@ -103,8 +101,6 @@ export class EmailComponent implements OnInit {
       }
 
       const emailsResponse = await this.apiService.post(apiEndpoint, requestData)
-      console.log("Enviando solicitud con:", requestData)
-      console.log("Respuesta del servidor:", emailsResponse)
 
       if (emailsResponse && emailsResponse.length > 0) {
         const formattedEmails = emailsResponse.map((emailString: string) => {
@@ -127,8 +123,6 @@ export class EmailComponent implements OnInit {
           const adjuntoIdMatch = emailString.match(/AdjuntoId:\s([a-f0-9-]+)/)
           const adjuntoId = adjuntoIdMatch ? adjuntoIdMatch[1].trim() : null
 
-
-          // Formatear la salida final
           return {
             contenido,
             remitente: remitente.nombre + " <" + remitente.email + ">",
@@ -141,7 +135,6 @@ export class EmailComponent implements OnInit {
           }
         })
 
-        console.log("Correos formateados:", formattedEmails)
 
         this.columns = ["contenido", "remitente", "destinatario", "asunto", "fechaRecibido"]
         this.tableDataSource.data = formattedEmails
@@ -149,7 +142,6 @@ export class EmailComponent implements OnInit {
         this.tableDataSource.paginator = this.paginator
         this.eventsList = formattedEmails
       } else {
-        console.log("No se encontraron correos")
         this.columns = []
         this.tableDataSource.data = []
         this.eventsList = []
@@ -157,6 +149,8 @@ export class EmailComponent implements OnInit {
       }
     } catch (error) {
       this.notificationService.warn("Fallo al obtener información de API! Error: " + error)
+    }finally {
+      this.isLoading = false;  
     }
   }
 
@@ -182,7 +176,6 @@ export class EmailComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('El modal se cerró');
     });
   }
 
@@ -190,14 +183,13 @@ export class EmailComponent implements OnInit {
     const dialogRef = this.dialog.open(SendEmailsComponent, {
       width: '600px',
       maxHeight: '60vh',
-      position: { bottom: '40px', right: '40px' },
+      position: { bottom: '75px', right: '40px' },
       hasBackdrop: true,
       panelClass: 'custom-dialog-container',
       backdropClass: 'transparent-backdrop', 
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('El modal se cerró');
     });
   }
 

@@ -35,7 +35,6 @@ export class SendEmailsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Inicializar componente
   }
 
   onFileChange(event: any): void {
@@ -79,7 +78,8 @@ export class SendEmailsComponent implements OnInit {
           userPassword = passwordObj.password;
         }
       } catch (e) {
-        console.log("La contraseña no está en formato JSON");
+        throw e
+
       }
 
       for (const destinatario of this.destinatarios) {
@@ -104,7 +104,6 @@ export class SendEmailsComponent implements OnInit {
         this.dialogRef.close(true);
       }, 2000);
     } catch (error) {
-      console.error("Error al enviar el correo:", error);
       this.errorMessage = error instanceof Error ? error.message : "Error al enviar el correo";
     } finally {
       this.isLoading = false;
@@ -129,7 +128,6 @@ export class SendEmailsComponent implements OnInit {
 
       return await response.text()
     } catch (error) {
-      console.error("Error en la petición:", error)
       throw error
     }
   }
