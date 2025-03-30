@@ -259,8 +259,8 @@ export class EmailComponent implements OnInit {
     const emailConf = emailConfString ? JSON.parse(emailConfString) : null;
     try {
       this.isLoading = this.isApiBusy = true;
-      const response = await this.apiService.post('email/capturar', emailConf);
-      this.notificationService.success(response);
+      const response = await this.apiService.post('email/fetch', emailConf);
+      this.notificationService.success("Correos actualizados correctamente.");
     } catch (error: any) {
       this.notificationService.warn(error.response.data);
     } finally {
