@@ -1,21 +1,19 @@
 <div class="flex m-3 main-container" style="display: flex; flex-direction: column; height: 100%;">
-  <div class="content-container bg-secondary" 
-       style="display: flex; justify-content: flex-end; align-items: center; padding: 10px;">
+  <div class="content-container bg-secondary"
+    style="display: flex; justify-content: flex-end; align-items: center; padding: 10px;">
     <button mat-fab extended color="primary" (click)="fetchData()" [disabled]="isLoading || isApiBusy">
-      <mat-icon>updateEmails</mat-icon>
+      <i class="fa-solid fa-rotate-right me-2"></i>
       <span>Actualizar Correos</span>
     </button>
     <button class="d-flex ms-2" mat-fab extended color="primary" (click)="openEmailForm()">
-      <i class="fa-solid fa-paper-plane me-2" ></i>
+      <i class="fa-solid fa-paper-plane me-2"></i>
       <span>Enviar Correos </span>
     </button>
   </div>
 
-  
-  <!-- Spinner -->
-<div *ngIf="isLoading" class="spinner-container">
-  <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
-</div>
+  <div *ngIf="isLoading" class="spinner-container">
+    <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+  </div>
 
 
   <!-- Tabla de correos  -->
@@ -39,7 +37,7 @@
       <ng-container matColumnDef="destinatario">
         <th mat-sort-header mat-header-cell *matHeaderCellDef>Destinatario</th>
         <td mat-cell *matCellDef="let element">
-          {{ element.destinatario }}
+          {{ formatDestinatarios(element.destinatario) }}
         </td>
       </ng-container>
 
@@ -53,7 +51,7 @@
       <ng-container matColumnDef="fechaRecibido">
         <th mat-sort-header mat-header-cell *matHeaderCellDef>Fecha Recibido</th>
         <td mat-cell *matCellDef="let element">
-          {{ element.fechaRecibido | date:'short' }}
+          {{ element.fechaRecibido | date:'yyyy-MM-dd' }}
         </td>
       </ng-container>
 
@@ -62,7 +60,7 @@
         [class.selected-row]="selectedRows.isSelected(row)"></tr>
     </table>
   </div>
-  
+
   <!-- Paginador -->
   <mat-paginator #paginator [pageSize]="30" [pageSizeOptions]="[5, 10, 25, 50]"></mat-paginator>
 </div>

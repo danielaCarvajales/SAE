@@ -14,11 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.text.SimpleDateFormat;
-import java.util.UUID;
 
 
 @Service
@@ -109,8 +106,11 @@ public class EmailService {
                 String contents = Jsoup.parse(message.getContent().toString()).text();
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 String formattedDate = message.getReceivedDate() != null ? formatter.format(message.getReceivedDate()) : "No disponible";
-                Address[] recipients = message.getRecipients(Message.RecipientType.TO);
-                String toEmails = (recipients != null && recipients.length > 0) ? recipients[0].toString() : "No disponible";
+                Address[] recipients = message.getAllRecipients();
+                Address[] allRecipients = message.getAllRecipients();
+                String toEmails = (allRecipients != null && allRecipients.length > 0)
+                        ? Arrays.toString(allRecipients)
+                        : "No disponible";
                 emailDetails.append("De: ").append(message.getFrom()[0])
                         .append(" - Destinatario: ").append(toEmails)
                         .append(" - Asunto: ").append(message.getSubject())

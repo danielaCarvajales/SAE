@@ -109,8 +109,14 @@ export class EmailComponent implements OnInit {
             ? { nombre: remitenteMatch[1].trim(), email: remitenteMatch[2].trim() }
             : { nombre: "Desconocido", email: "desconocido@email.com" }
 
-          const destinatarioMatch = emailString.match(/Destinatario:\s([^-\n]+)/)
-          const destinatario = destinatarioMatch ? destinatarioMatch[1].trim() : "No especificado"
+            const destinatarioMatch = emailString.match(/Destinatario:\s([^-\n]+)/)
+          let destinatario = "No especificado"
+
+          if (destinatarioMatch && destinatarioMatch[1]) {
+            destinatario = destinatarioMatch[1].trim()
+            console.log("Destinatarios encontrados:", destinatario)
+          }
+
           const asuntoMatch = emailString.match(/Asunto: ([^-]+)/)
           const asunto = asuntoMatch ? asuntoMatch[1].trim() : "Sin asunto"
           const contenidoMatch = emailString.match(/Contenido:\s([\s\S]*?)(?=De:|Fecha de recibido:|$)/);
@@ -203,61 +209,24 @@ export class EmailComponent implements OnInit {
     return formatted;
   }
 
-  onEventSelectionChange(event: MatSelectChange): void {
-    this.selectedEventCode = event.value;
-  }
-
-  toggleSelectAll(checked: boolean): void {
-    if (checked) {
-      this.tableDataSource.data.forEach(row => this.selectedRows.select(row));
+  formatDestinatarios(destinatarios: string): string {
+    if (!destinatarios || destinatarios === 'No especificado') {
+      return 'No especificado';
+    }
+    let cleanDestinatarios = destinatarios.replace(/^\[|\]$/g, '');
+    
+    const listaDestinatarios = cleanDestinatarios.split(/,\s*/)
+      .map(d => d.trim())
+      .filter(d => d.length > 0);
+  
+    if (listaDestinatarios.length === 0) {
+      return 'No especificado';
+    } else if (listaDestinatarios.length === 1) {
+      return listaDestinatarios[0];
     } else {
-      this.selectedRows.clear();
+      return `${listaDestinatarios[0]} +${listaDestinatarios.length - 1}`;
     }
   }
-
-  areAllRowsSelected(): boolean {
-    const numSelected = this.selectedRows.selected.length;
-    const numRows = this.tableDataSource.data.length;
-    return numSelected === numRows;
-  }
-
-  async editEvent(): Promise<void> {
-    const emailCodesArray: string[] = [];
-    this.selectedRows.selected.forEach((row: EmailDTO) => {
-      emailCodesArray.push(row.codigo);
-    });
-    try {
-      if (this.selectedEventCode === null) {
-        return;
-      }
-      this.isLoading = this.isApiBusy = true;
-      const response = await this.apiService.put(
-        `email/evento/${this.selectedEventCode}`,
-        emailCodesArray
-      );
-
-      this.notificationService.success(response);
-    } catch (error: any) {
-      this.notificationService.warn(error.response.data);
-    } finally {
-      this.isLoading = this.isApiBusy = false;
-      this.selectedEventCode = null;
-      this.fetchData();
-    }
-  }
-
-  async updateEmails(): Promise<void> {
-    const emailConfString = this.userService.getEmailConf();
-    const emailConf = emailConfString ? JSON.parse(emailConfString) : null;
-    try {
-      this.isLoading = this.isApiBusy = true;
-      const response = await this.apiService.post('email/fetch', emailConf);
-      this.notificationService.success("Correos actualizados correctamente.");
-    } catch (error: any) {
-      this.notificationService.warn(error.response.data);
-    } finally {
-      this.isLoading = this.isApiBusy = false;
-      this.fetchData();
-    }
-  }
+  
+  
 }

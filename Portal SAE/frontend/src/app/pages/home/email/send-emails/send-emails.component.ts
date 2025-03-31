@@ -38,7 +38,12 @@ export class SendEmailsComponent implements OnInit {
   }
 
   onFileChange(event: any): void {
-    this.archivos = Array.from(event.target.files)
+    const files: FileList = event.target.files;
+    if (files) {
+      for (let i = 0; i < files.length; i++) {
+        this.archivos.push(files[i]);
+      }
+    }
   }
 
   async onSubmit(event: Event): Promise<void> {
@@ -90,11 +95,10 @@ export class SendEmailsComponent implements OnInit {
         formData.append("email", userEmail);
         formData.append("password", userPassword);
 
-        if (this.archivos.length > 0) {
-          this.archivos.forEach((file) => {
-            formData.append("attachments", file);
-          });
-        }
+        this.archivos.forEach((file, index) => {
+          formData.append(`attachments`, file, file.name);
+        });
+    
 
         await this.sendEmailWithAttachments(formData);
       }
@@ -150,7 +154,7 @@ export class SendEmailsComponent implements OnInit {
 
   processEmails(): void {
     const emailsArray = this.destinatariosInput
-      .split(/[,\s]+/) 
+      .split(/[,\s]+/)
       .map(email => email.trim())
       .filter(email => email.length > 0);
 
