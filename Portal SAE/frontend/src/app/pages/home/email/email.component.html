@@ -1,14 +1,36 @@
 <div class="flex m-3 main-container" style="display: flex; flex-direction: column; height: 100%;">
   <div class="content-container bg-secondary"
     style="display: flex; justify-content: flex-end; align-items: center; padding: 10px;">
-    <button mat-fab extended color="primary" (click)="fetchData()" [disabled]="isLoading || isApiBusy">
-      <i class="fa-solid fa-rotate-right me-2"></i>
-      <span>Actualizar Correos</span>
+
+    <button mat-fab extended color="primary" class="d-flex align-items-center p-2 rounded-2 me-2 position-relative"
+    style="max-width: 400px; width: 100%; border: none; box-shadow: none;">
+        <i class="fa-solid fa-search text-white position-absolute" 
+       style="left: 12px; top: 50%; transform: translateY(-50%);"></i>
+        <input type="text" class="form-control bg-transparent border-0 text-white text-center"
+        style="flex-grow: 1; outline: none; box-shadow: none; min-width: 0; padding-left: 40px; padding-right: 40px;" 
+        [(ngModel)]="filterRemitente"
+        (keyup.enter)="applyRemitenteFilter()"
+        placeholder="Buscar...">
+        <button mat-icon-button *ngIf="filterRemitente" 
+            class="text-white p-0 position-absolute" 
+            (click)="clearRemitenteFilter()"
+            style="right: 8px; top: 50%; transform: translateY(-50%);">
+        <i class="fa-solid fa-times"></i>
     </button>
-    <button class="d-flex ms-2" mat-fab extended color="primary" (click)="openEmailForm()">
-      <i class="fa-solid fa-paper-plane me-2"></i>
-      <span>Enviar Correos </span>
-    </button>
+</button>
+
+
+    <div class="d-flex">
+      <button mat-fab extended color="primary" (click)="fetchData()" [disabled]="isLoading || isApiBusy">
+        <i class="fa-solid fa-rotate-right me-2"></i>
+        <span>Actualizar Correos</span>
+      </button>
+      <button class="d-flex ms-2" mat-fab extended color="primary" (click)="openEmailForm()">
+        <i class="fa-solid fa-paper-plane me-2"></i>
+        <span>Enviar Correos </span>
+      </button>
+    </div>
+
   </div>
 
   <div *ngIf="isLoading" class="spinner-container">

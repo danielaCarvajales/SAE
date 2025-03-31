@@ -129,3 +129,11 @@
   align-items: center;
   justify-content: center;
 }
+
+input::placeholder {
+  color: white !important;
+  opacity: 1; 
+}
+
+input:-ms-input-placeholder { color: white !important; }
+input::-ms-input-placeholder { color: white !important; }

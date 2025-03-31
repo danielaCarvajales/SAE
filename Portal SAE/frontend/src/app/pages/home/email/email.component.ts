@@ -20,6 +20,7 @@ import { EventDTO } from '../../../interfaces/event/event.dto';
 import { SeeEmailsComponent } from './see-emails/see-emails.component';
 import { SendEmailsComponent } from './send-emails/send-emails.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-email',
@@ -37,6 +38,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatIconModule,
     CommonModule,
     MatProgressSpinnerModule, 
+    FormsModule
 
   ],
   templateUrl: './email.component.html',
@@ -70,6 +72,7 @@ export class EmailComponent implements OnInit {
   selectedEventCode: number | null = null;
   isLoading: boolean = false;
   isApiBusy: boolean = false;
+  filterRemitente: string = '';
 
   ngOnInit(): void {
     const emailConf = this.userService.getEmailConf();
@@ -226,6 +229,25 @@ export class EmailComponent implements OnInit {
     } else {
       return `${listaDestinatarios[0]} +${listaDestinatarios.length - 1}`;
     }
+  }
+
+
+  applyRemitenteFilter() {
+    this.tableDataSource.filterPredicate = (data: EmailDTO, filter: string) => {
+      return data.remitente.toLowerCase().includes(filter.toLowerCase());
+    };
+    
+    this.tableDataSource.filter = this.filterRemitente.trim();
+    
+    if (this.tableDataSource.paginator) {
+      this.tableDataSource.paginator.firstPage();
+    }
+  }
+  
+
+  clearRemitenteFilter() {
+    this.filterRemitente = '';
+    this.tableDataSource.filter = '';
   }
   
   
