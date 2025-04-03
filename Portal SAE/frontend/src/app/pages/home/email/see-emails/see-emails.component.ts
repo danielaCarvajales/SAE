@@ -1,11 +1,12 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { NotificationService } from '../../../../services/notification.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { environment } from "../../../../../environments/environment"
+import { SendEmailsComponent } from '../send-emails/send-emails.component';
 
 @Component({
   selector: 'app-see-emails',
@@ -30,12 +31,17 @@ export class SeeEmailsComponent implements OnInit {
   adjuntoId: string | null = null;
   fileName = "";
   fileExtension = "";
-  isLoading= false;
-
+  isLoading = false;
+  remitenteEmail = "";
+  messageId: string | null = null
+  references: string | null = null
+  inReplyTo: string | null = null;
 
   constructor(
     private notificationService: NotificationService,
     public dialogRef: MatDialogRef<SeeEmailsComponent>,
+    private dialog: MatDialog,
+
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     if (!data) {
@@ -51,6 +57,14 @@ export class SeeEmailsComponent implements OnInit {
     this.fechaRecibido = data.fechaRecibido || 'Fecha desconocida';
     this.adjunto = data.adjunto || null;
     this.adjuntoId = data.adjuntoId || null;
+    this.messageId = data.messageId || null;
+    this.references = data.references || null;
+    this.inReplyTo = data.inReplyTo || null;
+
+    const emailMatch = this.remitente.match(/<([^>]+)>/);
+    if (emailMatch && emailMatch[1]) {
+      this.remitenteEmail = emailMatch[1];
+    }
     if (this.adjunto && this.adjunto !== 'Sin adjunto') {
       this.fileName = this.adjunto.split(' ')[0];
       const lastDotIndex = this.fileName.lastIndexOf('.');
@@ -59,8 +73,7 @@ export class SeeEmailsComponent implements OnInit {
       }
     }
   }
-  ngOnInit(): void {
-  }
+  ngOnInit(): void { }
 
   hasAttachment(): boolean {
     return this.adjunto !== null && this.adjunto !== "Sin adjunto" && this.adjuntoId !== null
@@ -70,14 +83,7 @@ export class SeeEmailsComponent implements OnInit {
     return this.contenido !== null && this.contenido.trim() !== ""
   }
 
-  getAttachmentUrl(): string {
-    if (!this.adjunto || !this.adjuntoId || this.adjunto === "Sin adjunto") {
-      return "#"
-    }
-
-    const baseUrl = environment.API_URL || ""
-    return `${baseUrl}/email/attachment/${this.adjuntoId}/${encodeURIComponent(this.fileName)}`
-  }
+ 
 
   getMimeType(extension: string): string {
     const mimeTypes: { [key: string]: string } = {
@@ -98,69 +104,75 @@ export class SeeEmailsComponent implements OnInit {
     return mimeTypes[extension] || "application/octet-stream"
   }
 
+  
   downloadAttachment(): void {
     if (!this.adjunto || !this.adjuntoId || this.adjunto === "Sin adjunto") {
       return
     }
 
+    this.isLoading = true
     const url = this.getAttachmentUrl()
-    const xhr = new XMLHttpRequest()
-    xhr.open("GET", url, true)
-    xhr.responseType = "blob"
 
-    xhr.onload = () => {
-      if (xhr.status === 200) {
-        let downloadFileName = this.fileName
+    const iframe = document.createElement("iframe")
+    iframe.style.display = "none"
+    document.body.appendChild(iframe)
 
-        if (!this.fileExtension && xhr.response.type) {
-          const mimeToExt: { [key: string]: string } = {
-            "application/msword": ".doc",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
-            "application/vnd.ms-excel": ".xls",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ".xlsx",
-            "application/vnd.ms-powerpoint": ".ppt",
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation": ".pptx",
-            "application/pdf": ".pdf",
-            "text/plain": ".txt",
-            "image/jpeg": ".jpg",
-            "image/png": ".png",
-            "image/gif": ".gif",
-          }
-
-          const ext = mimeToExt[xhr.response.type]
-          if (ext) {
-            downloadFileName += ext
-          }
-        }
-
-        const blob = new Blob([xhr.response], {
-          type: this.getMimeType(this.fileExtension),
-        })
-
-        const blobUrl = window.URL.createObjectURL(blob)
-
-        const a = document.createElement("a")
-        a.style.display = "none"
-        a.href = blobUrl
-        a.download = downloadFileName
-
-        document.body.appendChild(a)
-        a.click()
-
-        window.URL.revokeObjectURL(blobUrl)
-        document.body.removeChild(a)
-
-        this.notificationService.success(`Archivo "${downloadFileName}" descargado correctamente`)
-      } else {
-        this.notificationService.warn("Error al descargar el archivo: " + xhr.statusText)
-      }
+    iframe.onload = () => {
+      setTimeout(() => {
+        document.body.removeChild(iframe)
+        this.isLoading = false
+        this.notificationService.success(`Archivo "${this.fileName}" descargado correctamente`)
+      }, 1000)
     }
 
-    xhr.onerror = () => {
-      this.notificationService.warn("Error de red al descargar el archivo")
+    iframe.onerror = () => {
+      document.body.removeChild(iframe)
+      this.isLoading = false
+      this.notificationService.warn("Error al descargar el archivo")
     }
 
-    xhr.send()
+    iframe.src = url
+  }
+
+  getAttachmentUrl(): string {
+    if (!this.adjunto || !this.adjuntoId || this.adjunto === "Sin adjunto") {
+      return "#"
+    }
+
+    const baseUrl = environment.API_URL || ""
+    // Añadir timestamp para evitar caché
+    const timestamp = new Date().getTime()
+    return `${baseUrl}/email/attachment/${this.adjuntoId}/${encodeURIComponent(this.fileName)}?t=${timestamp}`
+  }
+
+  replyToEmail(): void {
+
+    if (!this.remitenteEmail) {
+      this.notificationService.warn("No se pudo determinar el correo del remitente para responder.")
+      return
+    }
+
+    this.dialogRef.close()
+
+    const replyData = {
+      to: this.remitenteEmail,
+      subject: `RE: ${this.asunto}`,
+      originalContent: this.contenido,
+      isReply: true,
+      messageId: this.data.messageId || null,
+      references: this.data.references || null,
+      inReplyTo: this.inReplyTo,
+    }
+
+    const dialogRef = this.dialog.open(SendEmailsComponent, {
+      width: "600px",
+      maxHeight: "60vh",
+      position: { bottom: "75px", right: "40px" },
+      hasBackdrop: true,
+      panelClass: "custom-dialog-container",
+      backdropClass: "transparent-backdrop",
+      data: replyData,
+    })
   }
 
 

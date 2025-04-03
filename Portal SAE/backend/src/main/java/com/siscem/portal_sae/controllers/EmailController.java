@@ -39,10 +39,14 @@ public class EmailController {
 			@RequestPart("body") String body,
 			@RequestPart("email") String userEmail,
 			@RequestPart("password") String userPassword,
-			@RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {
+			@RequestPart(value = "attachments", required = false) List<MultipartFile> attachments,
+	 		@RequestPart(value = "inReplyTo", required = false) String inReplyTo,
+			@RequestPart(value = "references", required = false) String references)
+
+	{
 
 		try {
-			boolean emailSent = emailService.sendEmail(to, subject, body, userEmail, userPassword, attachments);
+			boolean emailSent = emailService.sendEmail(to, subject, body, userEmail, userPassword, attachments, inReplyTo, references);
 
 			if (emailSent) {
 				return ResponseEntity.ok("Correo enviado correctamente");
@@ -73,45 +77,91 @@ public class EmailController {
 			@PathVariable String attachmentId,
 			@PathVariable String fileName) {
 		try {
+			// Imprimir información de depuración
+			System.out.println("Solicitando archivo: ID=" + attachmentId + ", Nombre=" + fileName);
+			System.out.println("Directorio de almacenamiento: " + attachmentStoragePath);
+
 			String storedFileName = attachmentId + "_" + fileName;
 			Path filePath = Paths.get(attachmentStoragePath, storedFileName);
+			Path actualFilePath = filePath;
 
+			// Verificar si el archivo existe exactamente como se espera
 			if (!Files.exists(filePath)) {
+				System.out.println("Archivo no encontrado en la ruta exacta: " + filePath);
+				System.out.println("Buscando archivos que comiencen con: " + attachmentId);
+
+				// Buscar cualquier archivo que comience con el ID del adjunto
 				try (var files = Files.list(Paths.get(attachmentStoragePath))) {
 					Optional<Path> matchingFile = files
 							.filter(file -> file.getFileName().toString().startsWith(attachmentId))
 							.findFirst();
+
 					if (matchingFile.isPresent()) {
-						String originalFileName = filePath.getFileName().toString();
+						actualFilePath = matchingFile.get();
+						System.out.println("Archivo encontrado: " + actualFilePath);
+
+						String originalFileName = actualFilePath.getFileName().toString();
 						int underscoreIndex = originalFileName.indexOf('_');
 						if (underscoreIndex >= 0 && underscoreIndex < originalFileName.length() - 1) {
 							fileName = originalFileName.substring(underscoreIndex + 1);
+							System.out.println("Nombre de archivo extraído: " + fileName);
 						}
 					} else {
+						System.out.println("No se encontró ningún archivo que comience con: " + attachmentId);
+
+						// Listar todos los archivos en el directorio para depuración
+						System.out.println("Archivos disponibles en el directorio:");
+						try (var allFiles = Files.list(Paths.get(attachmentStoragePath))) {
+							allFiles.forEach(file -> System.out.println("- " + file.getFileName()));
+						}
+
 						return ResponseEntity.notFound().build();
 					}
 				}
+			} else {
+				System.out.println("Archivo encontrado en la ruta exacta: " + filePath);
 			}
 
-			Resource resource = new FileSystemResource(filePath.toFile());
+			// CORRECCIÓN IMPORTANTE: Usar actualFilePath en lugar de filePath
+			Resource resource = new FileSystemResource(actualFilePath.toFile());
+
+			// Verificar que el archivo existe y tiene contenido
+			if (!resource.exists() || resource.contentLength() == 0) {
+				System.out.println("El recurso no existe o está vacío");
+				return ResponseEntity.notFound().build();
+			}
+
+			System.out.println("Tamaño del archivo: " + resource.contentLength() + " bytes");
+
 			String contentType = determineContentType(fileName);
+			System.out.println("Tipo de contenido determinado: " + contentType);
+
+			// Para archivos sin extensión, añadir la extensión adecuada
 			if (!fileName.contains(".")) {
 				String extension = getExtensionFromContentType(contentType);
 				if (extension != null && !extension.isEmpty()) {
 					fileName = fileName + "." + extension;
+					System.out.println("Añadida extensión al nombre de archivo: " + fileName);
 				}
 			}
 
+			// Configurar encabezados para forzar la descarga
 			return ResponseEntity.ok()
 					.contentType(MediaType.parseMediaType(contentType))
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+					.header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+					.header(HttpHeaders.PRAGMA, "no-cache")
+					.header(HttpHeaders.EXPIRES, "0")
 					.body(resource);
 
 		} catch (Exception e) {
+			System.out.println("Error al procesar la solicitud de descarga: " + e.getMessage());
 			e.printStackTrace();
 			return ResponseEntity.internalServerError().build();
 		}
 	}
+
+
 
 	private String determineContentType(String fileName) {
 		String extension = "";
@@ -144,12 +194,9 @@ public class EmailController {
 			case "gif":
 				return "image/gif";
 			default:
-				try {
-					String probed = Files.probeContentType(Paths.get(fileName));
-					return probed != null ? probed : "application/octet-stream";
-				} catch (IOException e) {
-					return "application/octet-stream";
-				}
+
+				return "application/octet-stream";
+
 		}
 	}
 

@@ -1,14 +1,13 @@
 <div class="container d-flex justify-content-center align-items-start mt-4">
   <div class="card shadow-lg position-relative"
     style="width: 500px; max-width: 100%; border-radius: 4px; border: none;">
-    <!-- Header oscuro -->
     <div class="bg-info text-white p-3 d-flex justify-content-between align-items-center"
       style="border-top-left-radius: 4px; border-top-right-radius: 4px;">
-      <h5 class="m-0 fw-normal text-white">Enviar Correo</h5>
-      <button class="btn btn-sm text-white border-0 p-0" style="background: transparent;" aria-label="Cerrar" mat-button
-        mat-dialog-close>
-        <i class="fa-solid fa-xmark"></i>
-      </button>
+      <h5 class="m-0 fw-normal text-white">{{isRepy ? 'Responder Correo' : 'Enviar Correo'}}</h5>
+      <button class="btn btn-sm position-absolute top-0 end-0 mt-2 me-2 text-white border-0"
+      style="background: transparent; padding: 0.25rem 0.5rem;" aria-label="Cerrar" (click)="onCancel()">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
     </div>
 
     <div class="p-4">
@@ -16,20 +15,30 @@
         <!-- Remitente -->
         <div class="mb-3 pb-2 border-bottom">
           <div class="d-flex">
-            <span class="fw-bold" style="min-width: 90px;">Remitente:</span>
-            <span>{{ userService.getUserEmail() }}</span>
+            <span class="fw-bold " style="min-width: 90px;">Remitente:</span>
+            <span class="fs-6 ms-1">{{ userService.getUserEmail() }}</span>
           </div>
         </div>
 
         <!-- Para -->
         <div class="mb-3 pb-2 border-bottom">
-          <div class="d-flex align-items-center">
+          <div *ngIf="isRepy && destinatarios.length > 0" class="d-flex align-items-center">
+            <span class="fw-bold" style="min-width: 90px;">Para:</span>
+            <div class="d-flex flex-wrap w-100">
+              <span class="badge bg-white fs-6 me-2 mb-2" *ngFor="let email of destinatarios">
+                {{email}}
+              </span>
+            </div>
+          </div>
+          
+          <div *ngIf="!isRepy" class="d-flex align-items-center">
             <span class="fw-bold" style="min-width: 90px;">Para:</span>
             <input type="text" [(ngModel)]="destinatariosInput" (input)="onChangeRecipient($event)"
               (keydown)="onKeydown($event)" name="destinatario" class="form-control border-0 p-0" required>
           </div>
-          <div class="d-flex flex-wrap mt-2" *ngIf="destinatarios.length > 0">
-            <span class="badge fs-6 me-2 mb-2" *ngFor="let email of destinatarios">
+          
+          <div class="d-flex flex-wrap mt-2" *ngIf="!isRepy && destinatarios.length > 0">
+            <span class="badge bg-white fs-6 me-2 mb-2" *ngFor="let email of destinatarios">
               {{email}}
               <button type="button" class="btn-close ms-2" (click)="removeDestinatario(email)"
                 aria-label="Remove"></button>
@@ -41,14 +50,14 @@
         <div class="mb-3 pb-2 border-bottom">
           <div class="d-flex align-items-center">
             <span class="fw-bold" style="min-width: 90px;">Asunto:</span>
-            <input type="text" [(ngModel)]="asunto" name="asunto" class="form-control border-0 p-0"
+            <input type="text" [(ngModel)]="asunto" name="asunto" class="form-control border-0 p-0 fs-6 "
               placeholder="Asunto del correo" required>
           </div>
         </div>
 
         <!-- Mensaje -->
         <div class="mb-4">
-          <textarea [(ngModel)]="contenido" name="contenido" class="form-control border-0 p-0" rows="5"
+          <textarea [(ngModel)]="contenido" name="contenido" class="form-control border-0 p-0 fs-6 " rows="5"
             placeholder="Escribe tu mensaje aquí" required
             style="resize: none; background-color: transparent;"></textarea>
         </div>
@@ -94,7 +103,7 @@
           <button type="submit" class="h6 btn btn-info text-white fw-semibold" [disabled]="isLoading">
             <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1" role="status"
               aria-hidden="true"></span>
-            Enviar
+              {{ isRepy ? 'Enviar Respuesta' : 'Enviar' }}
           </button>
         </div>
       </form>

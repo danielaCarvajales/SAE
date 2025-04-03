@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { ApiService } from '../../../../services/api.service';
 import { UserService } from '../../../../services/user.service';
 import { FormsModule } from "@angular/forms"
@@ -27,14 +27,47 @@ export class SendEmailsComponent implements OnInit {
   isLoading = false
   errorMessage = ""
   successMessage = ""
+  isRepy = false
+  inReplyTo: string | null = null
+  references: string | null = null;
 
   constructor(
     public apiService: ApiService,
     public userService: UserService,
     private dialogRef: MatDialogRef<SendEmailsComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+
   ) { }
 
   ngOnInit(): void {
+    this.isRepy = (this.data && this.data.isReply) || false
+
+    if (this.isRepy) {
+      if (this.data.to) {
+        this.destinatarios = [this.data.to]
+      }
+
+      if (this.data.subject) {
+        this.asunto = this.data.subject
+      } else if (this.data.asuntoOriginal) {
+        this.asunto = `RE: ${this.data.asuntoOriginal}`
+      }
+
+      this.inReplyTo = this.data.messageId || null
+      this.references = this.data.references || null
+
+      if (this.data.contenidoOriginal || this.data.originalContent) {
+       
+        setTimeout(() => {
+          const textareaElement = document.getElementById("contenido-textarea")
+          if (textareaElement) {
+            textareaElement.focus()
+            const textarea = textareaElement as HTMLTextAreaElement
+            textarea.setSelectionRange(0, 0)
+          }
+        }, 100)
+      }
+    }
   }
 
   onFileChange(event: any): void {
@@ -89,17 +122,34 @@ export class SendEmailsComponent implements OnInit {
 
       for (const destinatario of this.destinatarios) {
         const formData = new FormData();
-        formData.append("to", destinatario); // Enviar un solo correo a la vez
+        formData.append("to", destinatario);
         formData.append("subject", this.asunto);
         formData.append("body", this.contenido);
         formData.append("email", userEmail);
         formData.append("password", userPassword);
 
+         if (this.isRepy) {
+          if (this.inReplyTo) {
+            formData.append("inReplyTo", this.inReplyTo)
+            console.log("Agregando inReplyTo:", this.inReplyTo)
+          }
+
+          if (this.references) {
+            let refsValue = this.references
+            if (this.inReplyTo && !refsValue.includes(this.inReplyTo)) {
+              refsValue = `${refsValue} ${this.inReplyTo}`
+            }
+            formData.append("references", refsValue)
+            console.log("Agregando references:", refsValue)
+          } else if (this.inReplyTo) {
+            formData.append("references", this.inReplyTo)
+            console.log("Agregando references (desde inReplyTo):", this.inReplyTo)
+          }
+        }
+
         this.archivos.forEach((file, index) => {
           formData.append(`attachments`, file, file.name);
         });
-    
-
         await this.sendEmailWithAttachments(formData);
       }
 
@@ -175,5 +225,7 @@ export class SendEmailsComponent implements OnInit {
     this.destinatarios = this.destinatarios.filter(e => e !== email);
   }
 
-
+  onCancel(): void {
+    this.dialogRef.close()
+  }
 }

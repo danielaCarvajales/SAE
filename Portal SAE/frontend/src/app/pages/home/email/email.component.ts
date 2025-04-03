@@ -117,7 +117,6 @@ export class EmailComponent implements OnInit {
 
           if (destinatarioMatch && destinatarioMatch[1]) {
             destinatario = destinatarioMatch[1].trim()
-            console.log("Destinatarios encontrados:", destinatario)
           }
 
           const asuntoMatch = emailString.match(/Asunto: ([^-]+)/)

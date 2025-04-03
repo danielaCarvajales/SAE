@@ -30,9 +30,8 @@ public class EmailService {
         }
     }
 
-    public boolean sendEmail(String to, String subject, String body, String userEmail, String userPassword, List<MultipartFile> attachments) {
+    public boolean sendEmail(String to, String subject, String body, String userEmail, String userPassword, List<MultipartFile> attachments, String inReplyTo, String references ) {
         try {
-            // Configurar JavaMailSender con credenciales dinámicas
             JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
             mailSender.setHost("smtp.hostinger.com");
             mailSender.setPort(465);
@@ -53,6 +52,13 @@ public class EmailService {
             helper.setSubject(subject);
             helper.setText(body, true);
 
+            if (inReplyTo != null && !inReplyTo.isEmpty()) {
+                message.setHeader("In-Reply-To", inReplyTo);
+            }
+
+            if (references != null && !references.isEmpty()) {
+                message.setHeader("References", references);
+            }
 
             if (attachments != null && !attachments.isEmpty()) {
                 for (MultipartFile file : attachments) {
@@ -111,11 +117,34 @@ public class EmailService {
                 String toEmails = (allRecipients != null && allRecipients.length > 0)
                         ? Arrays.toString(allRecipients)
                         : "No disponible";
+
+                // Obtener el Message-ID
+                String messageId = "";
+                String[] messageIdHeaders = message.getHeader("Message-ID");
+                if (messageIdHeaders != null && messageIdHeaders.length > 0) {
+                    messageId = messageIdHeaders[0];
+                }
+                // Obtener las referencias
+                String references = "";
+                String[] referencesHeaders = message.getHeader("References");
+                if (referencesHeaders != null && referencesHeaders.length > 0) {
+                    references = referencesHeaders[0];
+                }
+                // Obtener In-Reply-To
+                String inReplyTo = "";
+                String[] inReplyToHeaders = message.getHeader("In-Reply-To");
+                if (inReplyToHeaders != null && inReplyToHeaders.length > 0) {
+                    inReplyTo = inReplyToHeaders[0];
+                }
+
                 emailDetails.append("De: ").append(message.getFrom()[0])
                         .append(" - Destinatario: ").append(toEmails)
                         .append(" - Asunto: ").append(message.getSubject())
                         .append(" - Contenido: ").append(getTextFromMessage(message))
-                        .append(" - Fecha de recibido: ").append(formattedDate);
+                        .append(" - Fecha de recibido: ").append(formattedDate)
+                        .append(" - MessageID: ").append(messageId)
+                        .append(" - References: ").append(references)
+                        .append(" - InReplyTo: ").append(inReplyTo);
 
                 if (message.isMimeType("multipart/*")) {
                     Multipart multipart = (Multipart) message.getContent();
